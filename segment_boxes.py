@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def segment_boxes(image, arucos, K, D, aruco_margin=0.0095, box_size=0.03):
+def segment_boxes_by_aruco(image, arucos, K, D, aruco_margin=0.0095, box_size=0.03):
     assert arucos.n_poses == 1
     n = arucos.n
     polygons_list = list()
@@ -59,3 +59,14 @@ def segment_boxes(image, arucos, K, D, aruco_margin=0.0095, box_size=0.03):
     for polygon in polygons_list:
         cv2.fillPoly(overlay, [polygon], (255, 255, 255))
     cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
+
+
+def segment_boxes_by_color(image: np.ndarray):
+    assert len(image.shape) == 3
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+    # shift hue so that red color is continuous
+    hsv = hsv + np.array([100, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
+    low = np.array([92, 170, 60], dtype=np.uint8)
+    up = np.array([108, 255, 255], dtype=np.uint8)
+    mask = cv2.inRange(hsv, low, up)
+    return mask
