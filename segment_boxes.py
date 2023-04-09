@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 
 
-def segment_boxes_by_aruco(image, arucos, K, D, aruco_margin=0.0095, box_size=0.03):
+def segment_and_draw_boxes_by_aruco(image, arucos, K, D,
+        aruco_margin=0.0095, box_size=0.03):
     assert arucos.n_poses == 1
     n = arucos.n
     polygons_list = list()

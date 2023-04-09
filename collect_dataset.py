@@ -3,7 +3,7 @@ import cv2
 import os
 import os.path as osp
 from aruco.aruco import detect_aruco, select_aruco_poses, PoseSelectors
-from segment_boxes import segment_boxes_by_aruco
+from segment_boxes import segment_and_draw_boxes_by_aruco
 
 
 def create_folders(out_folder):
@@ -24,7 +24,7 @@ def check_images(aruco_image, box_image, K, D, aruco_size, aruco_dict,
     print(f"Detected {arucos.n} aruco{'s' if arucos.n != 1 else ''}")
 
     draw = box_image.copy()
-    segment_boxes_by_aruco(draw, arucos, K, D)
+    segment_and_draw_boxes_by_aruco(draw, arucos, K, D)
 
     while True:
         print("Accept image? [y/n]")
