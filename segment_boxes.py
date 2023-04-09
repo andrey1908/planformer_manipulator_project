@@ -67,7 +67,7 @@ def segment_boxes_by_color(image: np.ndarray):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     # shift hue so that red color is continuous
     hsv = hsv + np.array([100, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
-    low = np.array([92, 170, 60], dtype=np.uint8)
+    low = np.array([92, 150, 90], dtype=np.uint8)
     up = np.array([108, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
     return mask
