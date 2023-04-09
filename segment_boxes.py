@@ -70,4 +70,13 @@ def segment_boxes_by_color(image: np.ndarray):
     low = np.array([92, 150, 90], dtype=np.uint8)
     up = np.array([108, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
+
+    polygons, _ = \
+        cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    mask[...] = 0
+    for polygon in polygons:
+        if len(polygon) < 100:
+            continue
+        cv2.fillPoly(mask, [polygon], 255)
+
     return mask
