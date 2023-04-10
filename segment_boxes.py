@@ -66,17 +66,24 @@ def segment_boxes_by_color(image: np.ndarray):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     # shift hue so that red color is continuous
-    hsv = hsv + np.array([100, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
-    low = np.array([92, 150, 90], dtype=np.uint8)
-    up = np.array([108, 255, 255], dtype=np.uint8)
-    mask = cv2.inRange(hsv, low, up)
+    hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
 
-    polygons, _ = \
+    low = np.array([150 - 8, 150, 90], dtype=np.uint8)
+    up = np.array([150 + 8, 255, 255], dtype=np.uint8)
+    mask = cv2.inRange(hsv, low, up)
+    polygons_red, _ = \
         cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    low = np.array([64 - 8, 150, 90], dtype=np.uint8)
+    up = np.array([64 + 8, 255, 255], dtype=np.uint8)
+    mask = cv2.inRange(hsv, low, up)
+    polygons_blue, _ = \
+        cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
     mask[...] = 0
-    for polygon in polygons:
+    for polygon in polygons_red + polygons_blue:
         if len(polygon) < 100:
             continue
         cv2.fillPoly(mask, [polygon], 255)
 
-    return mask
+    return mask, (len(polygons_red), len(polygons_blue))
