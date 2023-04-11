@@ -68,14 +68,14 @@ def segment_boxes_by_color(image: np.ndarray):
     # shift hue so that red color is continuous
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
 
-    low = np.array([150 - 8, 150, 90], dtype=np.uint8)
-    up = np.array([150 + 8, 255, 255], dtype=np.uint8)
+    low = np.array([150 - 14, 100, 110], dtype=np.uint8)
+    up = np.array([150 + 14, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
     polygons_red, _ = \
         cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-    low = np.array([64 - 8, 150, 90], dtype=np.uint8)
-    up = np.array([64 + 8, 255, 255], dtype=np.uint8)
+    low = np.array([55 - 14, 100, 110], dtype=np.uint8)
+    up = np.array([55 + 14, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
     polygons_blue, _ = \
         cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
