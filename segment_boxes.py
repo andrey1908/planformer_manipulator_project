@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def segment_and_draw_boxes_by_aruco(image, arucos, K, D,
+def segment_and_draw_boxes_by_aruco(draw, arucos, K, D,
         aruco_margin=0.0095, box_size=0.03):
     assert arucos.n_poses == 1
     n = arucos.n
@@ -42,7 +42,7 @@ def segment_and_draw_boxes_by_aruco(image, arucos, K, D,
             axis=0)
         # box_faces.shape = (6, 4, 3)
 
-        segmented = np.zeros(image.shape[:2], dtype=np.uint8)
+        segmented = np.zeros(draw.shape[:2], dtype=np.uint8)
         points, _ = \
             cv2.projectPoints(box_faces.reshape(-1, 3), np.zeros(3), np.zeros(3), K, D)
         points = points.reshape(6, 4, 2).astype(np.int)
@@ -55,11 +55,11 @@ def segment_and_draw_boxes_by_aruco(image, arucos, K, D,
         polygon = polygons[0].reshape(-1, 2)
         polygons_list.append(polygon)
 
-    cv2.polylines(image, polygons_list, True, (255, 255, 255), thickness=1)
-    overlay = image.copy()
+    cv2.polylines(draw, polygons_list, True, (255, 255, 255), thickness=1)
+    overlay = draw.copy()
     for polygon in polygons_list:
         cv2.fillPoly(overlay, [polygon], (255, 255, 255))
-    cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
+    cv2.addWeighted(draw, 0.7, overlay, 0.3, 0, dst=draw)
 
 
 def segment_boxes_by_color(image: np.ndarray):
