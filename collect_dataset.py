@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 import os.path as osp
-from aruco.aruco import detect_aruco, select_aruco_poses, PoseSelectors
+from utils.aruco import detect_aruco, select_aruco_poses, PoseSelectors
 from segment_boxes import segment_and_draw_boxes_by_aruco
 
 

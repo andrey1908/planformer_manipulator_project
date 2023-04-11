@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
-from aruco.aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
+from utils.aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
     PoseSelectors
 
 
