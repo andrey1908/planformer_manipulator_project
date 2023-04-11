@@ -6,7 +6,8 @@ from camera_utils.realsense_camera import RealsenseCamera
 
 
 def show(image):
-    cv2.imshow('', image)
+    cv2.namedWindow('show', cv2.WINDOW_NORMAL)
+    cv2.imshow('show', image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
