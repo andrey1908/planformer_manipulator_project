@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
-from utils.aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
+from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
     PoseSelectors, get_aruco_corners_3d
-from utils.estimate_plane_frame import estimate_plane_frame
+from estimate_plane_frame import estimate_plane_frame
 
 
 def calibrate_table(image, aruco_size, K, D, aruco_dict, params):
