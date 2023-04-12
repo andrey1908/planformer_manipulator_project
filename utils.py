@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corners_3d, PoseSelectors
 from estimate_plane_frame import estimate_plane_frame
+from camera_utils import stream
 from realsense_camera import RealsenseCamera
+from segment_boxes import segment_boxes_by_color
 
 
 def show(image):
@@ -48,3 +50,16 @@ def stream_table_frame(K, D, aruco_size, aruco_dict, params, save_vid=None, debu
 
     if save_vid is not None:
         vid.release()
+
+
+def stream_segmented_boxes(camera):
+    def segment_and_draw_boxes(image, key):
+        mask, _ = segment_boxes_by_color(image)
+        polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.polylines(image, polygons, True, (255, 255, 255), thickness=1)
+        overlay = image.copy()
+        for polygon in polygons:
+            cv2.fillPoly(overlay, [polygon], (255, 255, 255))
+        cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
+
+    stream(camera, segment_and_draw_boxes, "stream segmented boxes")
