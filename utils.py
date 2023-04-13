@@ -31,10 +31,10 @@ def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
         cv2.drawFrameAxes(image, K, D, rvec, tvec, 0.1)
     calibrate_and_draw_table_frame.table_detected = None
 
-    if save_folder:
+    if save_folder is not None:
         save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
     else:
-        save_callback = lambda: None
+        save_callback = lambda image, key: None
     stream(camera, [save_callback, calibrate_and_draw_table_frame], "stream table frame")
 
 
@@ -55,10 +55,10 @@ def stream_segmented_boxes(camera, save_folder=None):
     segment_and_draw_boxes.num_red = -1
     segment_and_draw_boxes.num_blue = -1
 
-    if save_folder:
+    if save_folder is not None:
         save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
     else:
-        save_callback = lambda: None
+        save_callback = lambda image, key: None
     stream(camera, [save_callback, segment_and_draw_boxes], "stream segmented boxes")
 
 
@@ -74,9 +74,9 @@ def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, save_folder=None):
         draw_aruco(image, arucos, False, False, K, D)
     detect_and_draw_aruco_on_boxes.number_of_boxes = -1
 
-    if save_folder:
+    if save_folder is not None:
         save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
     else:
-        save_callback = lambda: None
+        save_callback = lambda image, key: None
     stream(camera, [save_callback, detect_and_draw_aruco_on_boxes],
         "stream aruco detected on boxes")
