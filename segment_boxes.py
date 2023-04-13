@@ -81,9 +81,17 @@ def segment_boxes_by_color(image: np.ndarray):
         cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     mask[...] = 0
-    for polygon in polygons_red + polygons_blue:
+    num_red = 0
+    num_blue = 0
+    for polygon in polygons_red:
         if len(polygon) < 100:
             continue
         cv2.fillPoly(mask, [polygon], 255)
+        num_red += 1
+    for polygon in polygons_blue:
+        if len(polygon) < 100:
+            continue
+        cv2.fillPoly(mask, [polygon], 255)
+        num_blue += 1
 
-    return mask, (len(polygons_red), len(polygons_blue))
+    return mask, (num_red, num_blue)
