@@ -8,7 +8,7 @@ from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
 
 def detect_boxes(image, K, D, camera2table, aruco_dict, params, aruco_size, box_size):
     arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-        aruco_dict=aruco_dict, params=params)
+        subtract=100, aruco_dict=aruco_dict, params=params)
     arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
     arucos = select_aruco_markers(arucos, lambda id: id >= 4)
 

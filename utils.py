@@ -66,7 +66,7 @@ def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
         save_folder=None):
     def detect_and_draw_aruco_on_boxes(image, key):
         arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-            aruco_dict=aruco_dict, params=params)
+            subtract=100, aruco_dict=aruco_dict, params=params)
         arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
         arucos = select_aruco_markers(arucos, lambda id: id >= 4)
         if arucos.n != detect_and_draw_aruco_on_boxes.number_of_boxes:
