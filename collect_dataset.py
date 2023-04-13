@@ -4,6 +4,7 @@ import os
 import os.path as osp
 from aruco import detect_aruco, select_aruco_poses, PoseSelectors
 from segment_boxes import segment_and_draw_boxes_by_aruco
+from aruco_detection_configs import aruco_dict, aruco_detection_params
 
 
 def create_folders(out_folder):
@@ -13,10 +14,9 @@ def create_folders(out_folder):
     os.makedirs(osp.join(out_folder, "rejected/box"), exist_ok=False)
 
 
-def check_images(aruco_image, box_image, K, D, aruco_size, aruco_dict,
-        params, camera_position):
+def check_images(aruco_image, box_image, K, D, aruco_size, camera_position):
     arucos = detect_aruco(aruco_image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-        subtract=100, aruco_dict=aruco_dict, params=params)
+        subtract=100, aruco_dict=aruco_dict, params=aruco_detection_params)
     if camera_position == "side":
         arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
     elif camera_position == "top":
@@ -51,8 +51,7 @@ def stream_camera(camera, camera_position):
             return frame
 
 
-def collect_dataset(camera, camera_position, K, D, aruco_size,
-        aruco_dict, params, out_folder):
+def collect_dataset(camera, camera_position, K, D, aruco_size, out_folder):
     assert camera_position in ("side", "top")
     create_folders(out_folder)
     cv2.namedWindow(camera_position, cv2.WINDOW_NORMAL)
@@ -67,8 +66,7 @@ def collect_dataset(camera, camera_position, K, D, aruco_size,
         box_image = stream_camera(camera, camera_position)
         print("Box image is taken")
 
-        accepted = check_images(aruco_image, box_image, K, D, aruco_size,
-            aruco_dict, params, camera_position)
+        accepted = check_images(aruco_image, box_image, K, D, aruco_size, camera_position)
         if accepted:
             cv2.imwrite(osp.join(out_folder, f"accepted/aruco/{image_id:04}.png"), aruco_image)
             cv2.imwrite(osp.join(out_folder, f"accepted/box/{image_id:04}.png"), box_image)

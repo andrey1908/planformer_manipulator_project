@@ -6,6 +6,7 @@ from calibrate_table import calibrate_table
 from camera_utils import stream, StreamCallbacks
 from realsense_camera import RealsenseCamera
 from segment_boxes import segment_boxes_by_color
+from aruco_detection_configs import aruco_dict, aruco_detection_params
 
 
 def show(image):
@@ -15,9 +16,9 @@ def show(image):
     cv2.destroyAllWindows()
 
 
-def stream_table_frame(camera, K, D, aruco_size, aruco_dict, params, save_folder=None):
+def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
     def calibrate_and_draw_table_frame(image, key):
-        camera2table, _ = calibrate_table(image, K, D, aruco_size, aruco_dict, params)
+        camera2table, _ = calibrate_table(image, K, D, aruco_size)
         table_detected = camera2table is not None
         if table_detected != calibrate_and_draw_table_frame.table_detected:
             calibrate_and_draw_table_frame.table_detected = table_detected
@@ -62,11 +63,10 @@ def stream_segmented_boxes(camera, save_folder=None):
     stream(camera, [save_callback, segment_and_draw_boxes], "stream segmented boxes")
 
 
-def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
-        save_folder=None):
+def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, save_folder=None):
     def detect_and_draw_aruco_on_boxes(image, key):
         arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-            subtract=100, aruco_dict=aruco_dict, params=params)
+            subtract=100, aruco_dict=aruco_dict, params=aruco_detection_params)
         arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
         arucos = select_aruco_markers(arucos, lambda id: id >= 4)
         if arucos.n != detect_and_draw_aruco_on_boxes.number_of_boxes:
