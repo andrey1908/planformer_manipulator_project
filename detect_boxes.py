@@ -6,21 +6,14 @@ from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
     PoseSelectors
 
 
-def detect_boxes(image, K, D, camera2table, caemra_position,
-        aruco_size=0.016, box_size=0.03):
-    assert caemra_position in ("side", "top")
-    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_1000)
-    params = cv2.aruco.DetectorParameters_create()
+def detect_boxes(image, K, D, camera2table, aruco_dict, params, aruco_size, box_size):
     arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
         aruco_dict=aruco_dict, params=params)
-    if caemra_position == "side":
-        arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
-    elif caemra_position == "top":
-        arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_back)
+    arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
     arucos = select_aruco_markers(arucos, lambda id: id >= 4)
 
     print(f"Detected {arucos.n} boxes")
-    if len(arucos.n) == 0:
+    if arucos.n == 0:
         return np.empty((0, 2)), np.empty((0, 4))
 
     marker_poses_in_camera = np.tile(np.eye(4), (arucos.n, 1, 1))
