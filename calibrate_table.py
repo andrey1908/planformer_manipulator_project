@@ -5,7 +5,7 @@ from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
 from estimate_plane_frame import estimate_plane_frame
 
 
-def calibrate_table(image, aruco_size, K, D, aruco_dict, params):
+def calibrate_table(image, K, D, aruco_size, aruco_dict, params):
     arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size,
         use_generic=True, aruco_dict=aruco_dict, params=params)
     arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
