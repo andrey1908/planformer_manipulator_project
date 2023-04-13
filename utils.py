@@ -4,7 +4,6 @@ from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corner
     PoseSelectors, select_aruco_markers
 from calibrate_table import calibrate_table
 from camera_utils import stream, StreamCallbacks
-from realsense_camera import RealsenseCamera
 from segment_boxes import segment_boxes_by_color
 from aruco_detection_configs import aruco_dict, aruco_detection_params
 
