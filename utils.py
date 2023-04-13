@@ -70,7 +70,7 @@ def stream_segmented_boxes(camera, save_folder=None):
     stream(camera, [save_callback, segment_and_draw_boxes], "stream segmented boxes")
 
 
-def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
+def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
         save_folder=None):
     def detect_and_draw_aruco_on_boxes(image, key):
         arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
@@ -84,4 +84,4 @@ def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
     else:
         save_callback = lambda: None
     stream(camera, [save_callback, detect_and_draw_aruco_on_boxes],
-        "stream detected aruco on boxes")
+        "stream aruco detected on boxes")
