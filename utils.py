@@ -3,7 +3,7 @@ import numpy as np
 from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corners_3d, \
     PoseSelectors, select_aruco_markers
 from estimate_plane_frame import estimate_plane_frame
-from camera_utils import stream
+from camera_utils import stream, StreamCallbacks
 from realsense_camera import RealsenseCamera
 from segment_boxes import segment_boxes_by_color
 
@@ -53,7 +53,7 @@ def stream_table_frame(K, D, aruco_size, aruco_dict, params, save_vid=None, debu
         vid.release()
 
 
-def stream_segmented_boxes(camera):
+def stream_segmented_boxes(camera, save_folder=None):
     def segment_and_draw_boxes(image, key):
         mask, _ = segment_boxes_by_color(image)
         polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -63,10 +63,15 @@ def stream_segmented_boxes(camera):
             cv2.fillPoly(overlay, [polygon], (255, 255, 255))
         cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
 
-    stream(camera, segment_and_draw_boxes, "stream segmented boxes")
+    if save_folder:
+        save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
+    else:
+        save_callback = lambda: None
+    stream(camera, [save_callback, segment_and_draw_boxes], "stream segmented boxes")
 
 
-def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params):
+def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params,
+        save_folder=None):
     def detect_and_draw_aruco_on_boxes(image, key):
         arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
             aruco_dict=aruco_dict, params=params)
@@ -74,4 +79,9 @@ def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params)
         arucos = select_aruco_markers(arucos, lambda id: id >= 4)
         draw_aruco(image, arucos, False, False, K, D)
 
-    stream(camera, detect_and_draw_aruco_on_boxes, "stream detected aruco on boxes")
+    if save_folder:
+        save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
+    else:
+        save_callback = lambda: None
+    stream(camera, [save_callback, detect_and_draw_aruco_on_boxes],
+        "stream detected aruco on boxes")
