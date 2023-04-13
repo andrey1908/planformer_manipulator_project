@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corners_3d, PoseSelectors
+from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corners_3d, \
+    PoseSelectors, select_aruco_markers
 from estimate_plane_frame import estimate_plane_frame
 from camera_utils import stream
 from realsense_camera import RealsenseCamera
@@ -63,3 +64,14 @@ def stream_segmented_boxes(camera):
         cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
 
     stream(camera, segment_and_draw_boxes, "stream segmented boxes")
+
+
+def stream_detected_aruco_on_boxes(camera, K, D, aruco_size, aruco_dict, params):
+    def detect_and_draw_aruco_on_boxes(image, key):
+        arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
+            aruco_dict=aruco_dict, params=params)
+        arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
+        arucos = select_aruco_markers(arucos, lambda id: id >= 4)
+        draw_aruco(image, arucos, False, False, K, D)
+
+    stream(camera, detect_and_draw_aruco_on_boxes, "stream detected aruco on boxes")
