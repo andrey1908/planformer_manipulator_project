@@ -16,7 +16,7 @@ def create_folders(out_folder):
 
 def check_images(aruco_image, box_image, K, D, aruco_size, camera_position):
     arucos = detect_aruco(aruco_image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-        subtract=100, aruco_dict=aruco_dict, params=aruco_detection_params)
+        aruco_dict=aruco_dict, params=aruco_detection_params)
     if camera_position == "side":
         arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
     elif camera_position == "top":
