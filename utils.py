@@ -4,8 +4,8 @@ from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corner
     PoseSelectors, select_aruco_markers
 from calibrate_table import calibrate_table
 from camera_utils import stream, StreamCallbacks
-from segmentation import segment_boxes_by_color
 from aruco_detection_configs import aruco_dict, aruco_detection_params
+from segmentation import segment_scene
 
 
 def show(image):
@@ -38,28 +38,23 @@ def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
     stream(camera, [save_callback, calibrate_and_draw_table_frame], "stream table frame")
 
 
-def stream_segmented_boxes(camera, save_folder=None):
-    def segment_and_draw_boxes(image, key):
-        mask, (num_red, num_blue) = segment_boxes_by_color(image)
-        if num_red != segment_and_draw_boxes.num_red or \
-                num_blue != segment_and_draw_boxes.num_blue:
+def stream_segmented_scene(camera, save_folder=None):
+    def segment_and_show_scene(image, key):
+        segmentation, (num_red, num_blue) = segment_scene(image)
+        if num_red != segment_and_show_scene.num_red or \
+                num_blue != segment_and_show_scene.num_blue:
             print(f"Segmented {num_red} red, {num_blue} blue boxes")
-            segment_and_draw_boxes.num_red = num_red
-            segment_and_draw_boxes.num_blue = num_blue
-        polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.polylines(image, polygons, True, (255, 255, 255), thickness=1)
-        overlay = image.copy()
-        for polygon in polygons:
-            cv2.fillPoly(overlay, [polygon], (255, 255, 255))
-        cv2.addWeighted(image, 0.7, overlay, 0.3, 0, dst=image)
-    segment_and_draw_boxes.num_red = -1
-    segment_and_draw_boxes.num_blue = -1
+            segment_and_show_scene.num_red = num_red
+            segment_and_show_scene.num_blue = num_blue
+        np.copyto(image, segmentation)
+    segment_and_show_scene.num_red = -1
+    segment_and_show_scene.num_blue = -1
 
     if save_folder is not None:
         save_callback = StreamCallbacks.get_save_by_key_callback(save_folder)
     else:
         save_callback = lambda image, key: None
-    stream(camera, [save_callback, segment_and_draw_boxes], "stream segmented boxes")
+    stream(camera, [save_callback, segment_and_show_scene], "stream segmented scene")
 
 
 def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, save_folder=None):

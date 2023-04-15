@@ -62,36 +62,77 @@ def segment_and_draw_boxes_by_aruco(draw, arucos, K, D,
     cv2.addWeighted(draw, 0.7, overlay, 0.3, 0, dst=draw)
 
 
-def segment_boxes_by_color(image: np.ndarray):
+def segment_scene(image: np.ndarray):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+
+    red_mask, num_red = segment_red_boxes_hsv(hsv)
+    blue_mask, num_blue = segment_blue_boxes_hsv(hsv)
+    goal_mask, num_goals = segment_goal_hsv(hsv)
+    stop_line_mask, num_stop_lines = segment_stop_line_hsv(hsv)
+
+    assert num_goals == 3
+    assert num_stop_lines == 1
+
+    segmentation = np.zeros(image.shape, dtype=image.dtype)
+    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], red_mask * 200)
+    segmentation[:, :, 0] = np.maximum(segmentation[:, :, 0], blue_mask * 200)
+    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], goal_mask * 200)
+    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], goal_mask * 200)
+    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], stop_line_mask * 200)
+    segmentation[segmentation == 0] = 60
+    return segmentation, (num_red, num_blue)
+
+
+def segment_red_boxes_hsv(hsv: np.ndarray):
     # shift hue so that red color is continuous
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
-
     low = np.array([150 - 14, 100, 110], dtype=np.uint8)
     up = np.array([150 + 14, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
-    polygons_red, _ = \
-        cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+    return mask, num
 
-    low = np.array([55 - 14, 100, 110], dtype=np.uint8)
-    up = np.array([55 + 14, 255, 255], dtype=np.uint8)
+
+def segment_blue_boxes_hsv(hsv: np.ndarray):
+    low = np.array([161 - 14, 100, 110], dtype=np.uint8)
+    up = np.array([161 + 14, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
-    polygons_blue, _ = \
-        cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+    return mask, num
 
-    mask[...] = 0
-    num_red = 0
-    num_blue = 0
-    for polygon in polygons_red:
-        if len(polygon) < 100:
-            continue
-        cv2.fillPoly(mask, [polygon], 255)
-        num_red += 1
-    for polygon in polygons_blue:
-        if len(polygon) < 100:
-            continue
-        cv2.fillPoly(mask, [polygon], 255)
-        num_blue += 1
 
-    return mask, (num_red, num_blue)
+def segment_goal_hsv(hsv: np.ndarray):
+    low = np.array([45 - 14, 60, 110], dtype=np.uint8)
+    up = np.array([45 + 14, 255, 255], dtype=np.uint8)
+    mask_all_image = cv2.inRange(hsv, low, up)
+    mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+    x_range = slice(350, 850)
+    y_range = slice(100, 300)
+    mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+    return mask, num
+
+
+def segment_stop_line_hsv(hsv: np.ndarray):
+    low = np.array([0, 0, 0], dtype=np.uint8)
+    up = np.array([255, 200, 80], dtype=np.uint8)
+    mask_all_image = cv2.inRange(hsv, low, up)
+    mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+    x_range = slice(350, 850)
+    y_range = slice(150, 230)
+    mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+    return mask, num
+
+
+def filter_mask_with_polygons(mask: np.ndarray, min_polygon_lenght=100, fill_mask_value=1):
+    polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    filtered_mask = np.zeros(mask.shape, dtype=mask.dtype)
+    num = 0
+    for polygon in polygons:
+        if len(polygon) < min_polygon_lenght:
+            continue
+        cv2.fillPoly(filtered_mask, [polygon], fill_mask_value)
+        num += 1
+    return filtered_mask, num
