@@ -20,12 +20,13 @@ def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
         camera2table, _ = calibrate_table(image, K, D, aruco_size)
         table_detected = camera2table is not None
         if table_detected != calibrate_and_draw_table_frame.table_detected:
-            calibrate_and_draw_table_frame.table_detected = table_detected
             if table_detected:
                 print("Table detected")
             else:
-                print("Cannot detect table")
-                return
+                print("Could not detect table")
+            calibrate_and_draw_table_frame.table_detected = table_detected
+        if not table_detected:
+            return
         rvec, _ = cv2.Rodrigues(camera2table[0:3, 0:3])
         tvec = camera2table[0:3, 3]
         cv2.drawFrameAxes(image, K, D, rvec, tvec, 0.1)
