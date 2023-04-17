@@ -87,24 +87,24 @@ def segment_scene(image: np.ndarray):
 def segment_red_boxes_hsv(hsv: np.ndarray):
     # shift hue so that red color is continuous
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
-    low = np.array([150 - 14, 100, 110], dtype=np.uint8)
-    up = np.array([150 + 14, 255, 255], dtype=np.uint8)
+    low = np.array([150 - 9, 110, 120], dtype=np.uint8)
+    up = np.array([150 + 9, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
     return mask, num
 
 
 def segment_blue_boxes_hsv(hsv: np.ndarray):
-    low = np.array([161 - 14, 100, 110], dtype=np.uint8)
-    up = np.array([161 + 14, 255, 255], dtype=np.uint8)
+    low = np.array([161 - 9, 110, 120], dtype=np.uint8)
+    up = np.array([161 + 9, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, low, up)
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
     return mask, num
 
 
 def segment_goal_hsv(hsv: np.ndarray):
-    low = np.array([45 - 14, 60, 110], dtype=np.uint8)
-    up = np.array([45 + 14, 255, 255], dtype=np.uint8)
+    low = np.array([45 - 9, 70, 220], dtype=np.uint8)
+    up = np.array([45 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
     x_range = slice(350, 850)
@@ -116,7 +116,7 @@ def segment_goal_hsv(hsv: np.ndarray):
 
 def segment_stop_line_hsv(hsv: np.ndarray):
     low = np.array([0, 0, 0], dtype=np.uint8)
-    up = np.array([255, 200, 80], dtype=np.uint8)
+    up = np.array([255, 255, 90], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
     x_range = slice(350, 850)
