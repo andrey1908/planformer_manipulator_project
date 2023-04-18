@@ -102,26 +102,32 @@ def segment_blue_boxes_hsv(hsv: np.ndarray):
     return mask, num
 
 
-def segment_goal_hsv(hsv: np.ndarray):
+def segment_goal_hsv(hsv: np.ndarray, only_roi=True):
     low = np.array([45 - 9, 70, 220], dtype=np.uint8)
     up = np.array([45 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
-    mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-    x_range = slice(350, 850)
-    y_range = slice(100, 300)
-    mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    if only_roi:
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+        x_range = slice(350, 850)
+        y_range = slice(100, 300)
+        mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    else:
+        mask = mask_all_image
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
     return mask, num
 
 
-def segment_stop_line_hsv(hsv: np.ndarray):
+def segment_stop_line_hsv(hsv: np.ndarray, only_roi=True):
     low = np.array([0, 0, 0], dtype=np.uint8)
     up = np.array([255, 255, 90], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
-    mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-    x_range = slice(350, 850)
-    y_range = slice(150, 230)
-    mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    if only_roi:
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+        x_range = slice(350, 850)
+        y_range = slice(150, 230)
+        mask[y_range, x_range] = mask_all_image[y_range, x_range]
+    else:
+        mask = mask_all_image
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
     return mask, num
 
