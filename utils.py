@@ -4,7 +4,7 @@ from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corner
     PoseSelectors, select_aruco_markers
 from calibrate_table import calibrate_table
 from camera_utils import stream, StreamCallbacks
-from segmentation import segment_scene
+from segmentation import segment_scene_colorful
 from aruco_detection_configs import aruco_dict, aruco_detection_params, retry_rejected_params
 
 
@@ -39,9 +39,9 @@ def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
     stream(camera, [save_callback, calibrate_and_draw_table_frame], "stream table frame")
 
 
-def stream_segmented_scene(camera, save_folder=None):
+def stream_segmented_scene(camera, view, save_folder=None):
     def segment_and_show_scene(image, key):
-        segmentation, (num_red, num_blue) = segment_scene(image)
+        segmentation, (num_red, num_blue) = segment_scene_colorful(image, view)
         if num_red != segment_and_show_scene.num_red or \
                 num_blue != segment_and_show_scene.num_blue:
             print(f"Segmented {num_red} red, {num_blue} blue boxes")
