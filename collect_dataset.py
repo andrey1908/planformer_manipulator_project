@@ -14,13 +14,13 @@ def create_folders(out_folder):
     os.makedirs(osp.join(out_folder, "rejected/box"), exist_ok=False)
 
 
-def check_images(aruco_image, box_image, K, D, aruco_size, camera_position):
+def check_images(aruco_image, box_image, K, D, aruco_size, view):
     arucos = detect_aruco(aruco_image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
         aruco_dict=aruco_dict, params=aruco_detection_params)
-    if camera_position == "side":
+    if view == "top":
+        arucos = select_aruco_poses(arucos, PoseSelectors.best)
+    elif view == "front":
         arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
-    elif camera_position == "top":
-        arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_back)
     print(f"Detected {arucos.n} aruco{'s' if arucos.n != 1 else ''}")
 
     draw = box_image.copy()
@@ -28,7 +28,7 @@ def check_images(aruco_image, box_image, K, D, aruco_size, camera_position):
 
     while True:
         print("Accept image? [y/n]")
-        cv2.imshow(camera_position, draw)
+        cv2.imshow(view, draw)
         ret = cv2.waitKey(0)
         if ret == ord('y'):
             print("Accepted!")
@@ -40,10 +40,10 @@ def check_images(aruco_image, box_image, K, D, aruco_size, camera_position):
             print("Unknown answer")
 
 
-def stream_camera(camera, camera_position):
+def stream_camera(camera, view):
     while True:
         frame = camera()
-        cv2.imshow(camera_position, frame)
+        cv2.imshow(view, frame)
         ret = cv2.waitKey(1)
         if ret == 'q':
             exit(0)
@@ -51,22 +51,22 @@ def stream_camera(camera, camera_position):
             return frame
 
 
-def collect_dataset(camera, camera_position, K, D, aruco_size, out_folder):
-    assert camera_position in ("side", "top")
+def collect_dataset(camera, view, K, D, aruco_size, out_folder):
+    assert view in ("top", "front")
     create_folders(out_folder)
-    cv2.namedWindow(camera_position, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(camera_position, 600, 300)
+    cv2.namedWindow(view, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(view, 600, 300)
     image_id = 0
     while True:
         print("Take aruco image...")
-        aruco_image = stream_camera(camera, camera_position)
+        aruco_image = stream_camera(camera, view)
         print("Aruco image is taken")
 
         print("Take box image...")
-        box_image = stream_camera(camera, camera_position)
+        box_image = stream_camera(camera, view)
         print("Box image is taken")
 
-        accepted = check_images(aruco_image, box_image, K, D, aruco_size, camera_position)
+        accepted = check_images(aruco_image, box_image, K, D, aruco_size, view)
         if accepted:
             cv2.imwrite(osp.join(out_folder, f"accepted/aruco/{image_id:04}.png"), aruco_image)
             cv2.imwrite(osp.join(out_folder, f"accepted/box/{image_id:04}.png"), box_image)
