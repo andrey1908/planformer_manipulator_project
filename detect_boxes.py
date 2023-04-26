@@ -7,11 +7,17 @@ from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, \
 from aruco_detection_configs import aruco_dict, aruco_detection_params, retry_rejected_params
 
 
-def detect_boxes(image, K, D, camera2table, aruco_size, box_size):
+def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
+    assert view in ("top", "front")
+    if view == "top":
+        pose_selector = PoseSelectors.best
+    elif view == "front":
+        pose_selector = PoseSelectors.Z_axis_up
+
     arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
         retry_rejected=True, retry_rejected_params=retry_rejected_params,
         aruco_dict=aruco_dict, params=aruco_detection_params)
-    arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
+    arucos = select_aruco_poses(arucos, pose_selector)
     arucos = select_aruco_markers(arucos, lambda id: id >= 4)
 
     print(f"Detected {arucos.n} boxes")

@@ -58,12 +58,18 @@ def stream_segmented_scene(camera, view, save_folder=None):
     stream(camera, [save_callback, segment_and_show_scene], "stream segmented scene")
 
 
-def stream_aruco_detected_on_boxes(camera, K, D, aruco_size, save_folder=None):
+def stream_aruco_detected_on_boxes(camera, view, K, D, aruco_size, save_folder=None):
+    assert view in ("top", "front")
+    if view == "top":
+        pose_selector = PoseSelectors.best
+    elif view == "front":
+        pose_selector = PoseSelectors.Z_axis_up
+
     def detect_and_draw_aruco_on_boxes(image, key):
         arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
             retry_rejected=True, retry_rejected_params=retry_rejected_params,
             aruco_dict=aruco_dict, params=aruco_detection_params)
-        arucos = select_aruco_poses(arucos, PoseSelectors.Z_axis_up)
+        arucos = select_aruco_poses(arucos, pose_selector)
         arucos = select_aruco_markers(arucos, lambda id: id >= 4)
         if arucos.n != detect_and_draw_aruco_on_boxes.number_of_boxes:
             print(f"Number of boxes: {arucos.n}")
