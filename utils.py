@@ -27,9 +27,9 @@ def get_color_range(image):
     return min_colors, max_colors
 
 
-def stream_table_frame(camera, K, D, aruco_size, save_folder=None):
+def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
     def calibrate_and_draw_table_frame(image, key):
-        camera2table, _ = calibrate_table(image, K, D, aruco_size)
+        camera2table, _ = calibrate_table(image, view, K, D, aruco_size)
         table_detected = camera2table is not None
         if table_detected != calibrate_and_draw_table_frame.table_detected:
             if table_detected:

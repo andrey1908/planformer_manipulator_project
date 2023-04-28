@@ -53,9 +53,9 @@ def detect_boxes_segm(image, view, K, D, camera2table, box_size):
     if len(image_points) > 0:
         points = cv2.undistortPoints(image_points, K, D)
         points = points[:, 0, :]
-        points = np.hstack((points, np.ones((len(points), 1.))))
+        points = np.hstack((points, np.ones((len(points), 1))))
         points = intersection_with_XY(points, camera2table)
-        points = np.hstack((points, np.ones((len(points), 1.))))
+        points = np.hstack((points, np.ones((len(points), 1))))
         points = np.expand_dims(points, axis=-1)
         points = np.matmul(table2camera, points)
         points = points[:, :, 0]
