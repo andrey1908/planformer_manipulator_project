@@ -3,7 +3,7 @@ import cv2
 from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, PoseSelectors
-from aruco_detection_configs import aruco_dict, aruco_detection_params, retry_rejected_params
+from params import aruco_dict, aruco_detection_params, retry_rejected_params
 from segmentation import segment_red_boxes_hsv, segment_blue_boxes_hsv
 from estimate_plane_frame import intersection_with_XY
 
