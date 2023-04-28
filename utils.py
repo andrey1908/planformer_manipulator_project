@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
-from aruco import detect_aruco, draw_aruco, select_aruco_poses, get_aruco_corners_3d, \
-    PoseSelectors, select_aruco_markers
+from aruco import draw_aruco
 from calibrate_table import calibrate_table
 from camera_utils import stream, StreamCallbacks
 from segmentation import segment_scene_colorful
+from detection import detect_boxes_aruco
 from aruco_detection_configs import aruco_dict, aruco_detection_params, retry_rejected_params
 
 
@@ -59,18 +59,8 @@ def stream_segmented_scene(camera, view, save_folder=None):
 
 
 def stream_aruco_detected_on_boxes(camera, view, K, D, aruco_size, save_folder=None):
-    assert view in ("top", "front")
-    if view == "top":
-        pose_selector = PoseSelectors.best
-    elif view == "front":
-        pose_selector = PoseSelectors.Z_axis_up
-
     def detect_and_draw_aruco_on_boxes(image, key):
-        arucos = detect_aruco(image, K=K, D=D, aruco_sizes=aruco_size, use_generic=True,
-            retry_rejected=True, retry_rejected_params=retry_rejected_params,
-            aruco_dict=aruco_dict, params=aruco_detection_params)
-        arucos = select_aruco_poses(arucos, pose_selector)
-        arucos = select_aruco_markers(arucos, lambda id: id >= 4)
+        arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
         if arucos.n != detect_and_draw_aruco_on_boxes.number_of_boxes:
             print(f"Number of boxes: {arucos.n}")
             detect_and_draw_aruco_on_boxes.number_of_boxes = arucos.n
