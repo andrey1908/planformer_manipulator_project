@@ -112,7 +112,16 @@ def segment_red_boxes_hsv(hsv: np.ndarray, view: str=""):
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
     low = np.array([147 - 9, 110, 120], dtype=np.uint8)
     up = np.array([147 + 9, 255, 255], dtype=np.uint8)
-    mask = cv2.inRange(hsv, low, up)
+    mask_all_image = cv2.inRange(hsv, low, up)
+    if view:
+        if view == "top":
+            y_range = slice(0, 1024)
+        elif view == "front":
+            y_range = slice(0, 637)
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+        mask[y_range, :] = mask_all_image[y_range, :]
+    else:
+        mask = mask_all_image
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
     return mask, num
 
@@ -123,10 +132,10 @@ def segment_blue_boxes_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([161 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "front":
-            y_range = slice(0, 637)
-        elif view == "top":
+        if view == "top":
             y_range = slice(0, 1024)
+        elif view == "front":
+            y_range = slice(0, 637)
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, :] = mask_all_image[y_range, :]
     else:
@@ -141,12 +150,12 @@ def segment_goal_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([45 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "front":
-            x_range = slice(440, 850)
-            y_range = slice(293, 448)
-        elif view == "top":
+        if view == "top":
             x_range = slice(400, 900)
             y_range = slice(421, 754)
+        elif view == "front":
+            x_range = slice(440, 850)
+            y_range = slice(293, 448)
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
@@ -161,12 +170,12 @@ def segment_stop_line_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([255, 255, 80], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "front":
-            x_range = slice(440, 850)
-            y_range = slice(293, 448)
-        elif view == "top":
+        if view == "top":
             x_range = slice(400, 900)
             y_range = slice(421, 754)
+        elif view == "front":
+            x_range = slice(440, 850)
+            y_range = slice(293, 448)
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
