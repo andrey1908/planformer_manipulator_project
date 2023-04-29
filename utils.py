@@ -9,8 +9,19 @@ def show(image):
     cv2.destroyAllWindows()
 
 
-def get_color_range(image):
-    roi = cv2.selectROI(image, showCrosshair=False)
+def get_roi(image, window_name=""):
+    roi = cv2.selectROI(window_name, image, showCrosshair=False)
+    cv2.destroyAllWindows()
+    x, y, w, h = roi
+
+    x_range = slice(x, x + w)
+    y_range = slice(y, y + h)
+
+    return x_range, y_range
+
+
+def get_color_range(image, window_name=""):
+    roi = cv2.selectROI(window_name, image, showCrosshair=False)
     cv2.destroyAllWindows()
     x, y, w, h = roi
 
