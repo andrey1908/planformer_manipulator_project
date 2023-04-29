@@ -62,12 +62,11 @@ def segment_and_draw_boxes_by_aruco(draw, arucos, K, D,
     cv2.addWeighted(draw, 0.7, overlay, 0.3, 0, dst=draw)
 
 
-def segment_scene_colorful(image: np.ndarray, view: str):
-    assert view in ("top", "front")
+def segment_scene_colorful(image: np.ndarray, view: str=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
-    red_mask, num_red = segment_red_boxes_hsv(hsv)
+    red_mask, num_red = segment_red_boxes_hsv(hsv, view)
     blue_mask, num_blue = segment_blue_boxes_hsv(hsv, view)
     goal_mask, num_goals = segment_goal_hsv(hsv, view)
     stop_line_mask, num_stop_lines = segment_stop_line_hsv(hsv, view)
@@ -85,12 +84,11 @@ def segment_scene_colorful(image: np.ndarray, view: str):
     return segmentation, (num_red, num_blue)
 
 
-def segment_scene(image: np.ndarray, view: str):
-    assert view in ("top", "front")
+def segment_scene(image: np.ndarray, view: str=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
-    red_mask, num_red = segment_red_boxes_hsv(hsv)
+    red_mask, num_red = segment_red_boxes_hsv(hsv, view)
     blue_mask, num_blue = segment_blue_boxes_hsv(hsv, view)
     goal_mask, num_goals = segment_goal_hsv(hsv, view)
     stop_line_mask, num_stop_lines = segment_stop_line_hsv(hsv, view)
@@ -108,7 +106,8 @@ def segment_scene(image: np.ndarray, view: str):
     return segmentation, (num_red, num_blue)
 
 
-def segment_red_boxes_hsv(hsv: np.ndarray):
+def segment_red_boxes_hsv(hsv: np.ndarray, view: str=""):
+    assert view in ("top", "front", "")
     # shift hue so that red color is continuous
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
     low = np.array([147 - 9, 110, 120], dtype=np.uint8)
@@ -118,16 +117,17 @@ def segment_red_boxes_hsv(hsv: np.ndarray):
     return mask, num
 
 
-def segment_blue_boxes_hsv(hsv: np.ndarray, view: str, only_roi=True):
+def segment_blue_boxes_hsv(hsv: np.ndarray, view: str=""):
+    assert view in ("top", "front", "")
     low = np.array([161 - 9, 110, 120], dtype=np.uint8)
     up = np.array([161 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
-    if only_roi:
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+    if view:
         if view == "front":
             y_range = slice(0, 637)
         elif view == "top":
             y_range = slice(0, 1024)
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, :] = mask_all_image[y_range, :]
     else:
         mask = mask_all_image
@@ -135,18 +135,19 @@ def segment_blue_boxes_hsv(hsv: np.ndarray, view: str, only_roi=True):
     return mask, num
 
 
-def segment_goal_hsv(hsv: np.ndarray, view: str, only_roi=True):
+def segment_goal_hsv(hsv: np.ndarray, view: str=""):
+    assert view in ("top", "front", "")
     low = np.array([45 - 9, 60, 160], dtype=np.uint8)
     up = np.array([45 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
-    if only_roi:
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+    if view:
         if view == "front":
             x_range = slice(440, 850)
             y_range = slice(293, 448)
         elif view == "top":
             x_range = slice(400, 900)
             y_range = slice(421, 754)
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
         mask = mask_all_image
@@ -154,18 +155,19 @@ def segment_goal_hsv(hsv: np.ndarray, view: str, only_roi=True):
     return mask, num
 
 
-def segment_stop_line_hsv(hsv: np.ndarray, view: str, only_roi=True):
+def segment_stop_line_hsv(hsv: np.ndarray, view: str=""):
+    assert view in ("top", "front", "")
     low = np.array([0, 0, 0], dtype=np.uint8)
     up = np.array([255, 255, 80], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
-    if only_roi:
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
+    if view:
         if view == "front":
             x_range = slice(440, 850)
             y_range = slice(293, 448)
         elif view == "top":
             x_range = slice(400, 900)
             y_range = slice(421, 754)
+        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
         mask = mask_all_image
