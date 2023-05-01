@@ -35,7 +35,7 @@ aruco_dict = get_aruco_dict()
 aruco_detection_params = get_aruco_detection_params()
 retry_rejected_params = get_retry_rejected_params()
 
-K, D = get_camera_calib('phitz/calib.npz')
+K, D = get_camera_calib('data/calib.npz')
 
 table_aruco_size = 0.132
 box_aruco_size = 0.0172
