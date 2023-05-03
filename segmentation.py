@@ -62,7 +62,7 @@ def segment_stop_line_hsv(hsv, view=""):
     return mask, polygons
 
 
-def segment_green_markers_hsv(hsv, view=""):
+def segment_table_markers_hsv(hsv, view=""):
     assert view in ("top", "front", "")
     min_color = np.array([120 - 9, 110, 120], dtype=np.uint8)
     max_color = np.array([120 + 9, 255, 255], dtype=np.uint8)

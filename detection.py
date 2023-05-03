@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, PoseSelectors
 from params import aruco_dict, aruco_detection_params, retry_rejected_params
-from segmentation import segment_green_markers_hsv, segment_red_boxes_hsv, segment_blue_boxes_hsv
+from segmentation import segment_table_markers_hsv, segment_red_boxes_hsv, segment_blue_boxes_hsv
 
 
 def detect_table_aruco(image, view, K, D, aruco_size):
@@ -48,11 +48,11 @@ def detect_blue_boxes_on_image_hsv(hsv, view):
     return blue_boxes
 
 
-def detect_green_markers_on_image_hsv(hsv, view):
-    _, green_markers_polygons = segment_green_markers_hsv(hsv, view)
-    green_markers = get_centers_of_polygons(green_markers_polygons)
-    # green_markers.shape = (n, 1, 2)
-    return green_markers
+def detect_table_markers_on_image_hsv(hsv, view):
+    _, table_markers_polygons = segment_table_markers_hsv(hsv, view)
+    table_markers = get_centers_of_polygons(table_markers_polygons)
+    # table_markers.shape = (n, 1, 2)
+    return table_markers
 
 
 def get_centers_of_polygons(polygons):

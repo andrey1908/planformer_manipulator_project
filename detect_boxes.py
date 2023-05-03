@@ -3,7 +3,7 @@ import cv2
 from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
-    detect_blue_boxes_on_image_hsv, detect_green_markers_on_image_hsv
+    detect_blue_boxes_on_image_hsv, detect_table_markers_on_image_hsv
 from estimate_plane_frame import intersection_with_XY
 from shapely.geometry import Polygon
 
@@ -74,23 +74,23 @@ def detect_boxes_visual(image, view, K, D):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
-    green_markers = detect_green_markers_on_image_hsv(hsv, view)
-    assert(len(green_markers) == 4)
+    table_markers = detect_table_markers_on_image_hsv(hsv, view)
+    assert(len(table_markers) == 4)
 
     red_boxes = cv2.undistortPoints(red_boxes, K, D)
     blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
-    green_markers = cv2.undistortPoints(green_markers, K, D)
+    table_markers = cv2.undistortPoints(table_markers, K, D)
 
-    green_markers.sort(key=lambda a, b: np.sign(sum(a) - sum(b)))
-    p = Polygon(green_markers[:, 0, :])
+    table_markers.sort(key=lambda a, b: np.sign(sum(a) - sum(b)))
+    p = Polygon(table_markers[:, 0, :])
     if p.exterior.is_ccw:
-        green_markers[[1, 3]] = green_markers[[3, 1]]
-        p = Polygon(green_markers[:, 0, :])
+        table_markers[[1, 3]] = table_markers[[3, 1]]
+        p = Polygon(table_markers[:, 0, :])
     assert(p.exterior.is_simple)
     assert(not p.exterior.is_ccw)
 
     dst = np.array([[[0, 1]], [[1, 1]], [[1, 0]], [0, 0]], dtype=np.float32)
-    transform = cv2.getPerspectiveTransform(green_markers, dst)
+    transform = cv2.getPerspectiveTransform(table_markers, dst)
 
     boxes = np.vstack((red_boxes, blue_boxes))
     boxes_positions = cv2.perspectiveTransform(boxes, transform).squeeze()
