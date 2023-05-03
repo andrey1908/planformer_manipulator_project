@@ -14,10 +14,10 @@ def segment_red_boxes_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["boxes"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+    mask, num, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
         refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
-    return mask, num
+    return mask, num, polygons
 
 
 def segment_blue_boxes_hsv(hsv, view=""):
@@ -28,10 +28,10 @@ def segment_blue_boxes_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["boxes"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+    mask, num, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
         refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
-    return mask, num
+    return mask, num, polygons
 
 
 def segment_goal_hsv(hsv, view=""):
@@ -42,10 +42,10 @@ def segment_goal_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+    mask, num, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
         refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
-    return mask, num
+    return mask, num, polygons
 
 
 def segment_stop_line_hsv(hsv, view=""):
@@ -56,7 +56,21 @@ def segment_stop_line_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+    mask, num, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
         refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
-    return mask, num
+    return mask, num, polygons
+
+
+def segment_green_markers_hsv(hsv, view=""):
+    assert view in ("top", "front", "")
+    min_color = np.array([120 - 9, 110, 120], dtype=np.uint8)
+    max_color = np.array([120 + 9, 255, 255], dtype=np.uint8)
+    if view:
+        x_range, y_range = segmentation_roi[view]["boxes"]
+    else:
+        x_range, y_range = slice(0, None), slice(0, None)
+    mask, num, polygons = segment_by_color(hsv, min_color, max_color,
+        x_range=x_range, y_range=y_range,
+        refine_mask=True, min_polygon_length=20, max_polygon_length=200)
+    return mask, num, polygons

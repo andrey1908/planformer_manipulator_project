@@ -4,6 +4,9 @@ from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_boxes_on_image
 from estimate_plane_frame import intersection_with_XY
+from segmentation import segment_red_boxes_hsv, segment_blue_boxes_hsv, \
+    segment_green_markers_hsv
+from shapely.geometry import Polygon
 
 
 def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
@@ -61,5 +64,51 @@ def detect_boxes_segm(image, view, K, D, camera2table, box_size):
         points = np.empty((0, 4))
 
     boxes_positions = points[:, :2]
+    boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
+    return boxes_positions, boxes_orientations
+
+
+def detect_boxes_visual(image, view, K, D):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+    _, _, red_polygons = segment_red_boxes_hsv(hsv, view)
+    _, _, blue_polygons = segment_blue_boxes_hsv(hsv, view)
+    _, _, green_polygons = segment_green_markers_hsv(hsv, view)
+    assert(len(green_polygons) == 4)
+
+    red_boxes = list()
+    for red_polygon in red_polygons:
+        u, v = red_polygon.mean(axis=0)[0]
+        red_boxes.append((u, v))
+    red_boxes = np.array(red_boxes)[:, np.newaxis, :]
+    red_boxes = cv2.undistortPoints(red_boxes, K, D)
+
+    blue_boxes = list()
+    for blue_polygon in blue_polygons:
+        u, v = blue_polygon.mean(axis=0)[0]
+        blue_boxes.append((u, v))
+    blue_boxes = np.array(blue_boxes)[:, np.newaxis, :]
+    blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
+
+    green_markers = list()
+    for green_polygon in green_polygons:
+        u, v = green_polygon.mean(axis=0)[0]
+        green_markers.append((u, v))
+    green_markers.sort(key=lambda a, b: np.sign(sum(a) - sum(b)))
+    p = Polygon(green_markers)
+    if p.exterior.is_ccw:
+        green_markers[1], green_markers[3] = green_markers[3], green_markers[1]
+        p = Polygon(green_markers)
+    assert(p.exterior.is_simple)
+    assert(not p.exterior.is_ccw)
+
+    green_markers = np.array(green_markers)[:, np.newaxis, :]
+    green_markers = cv2.undistortPoints(green_markers, K, D)
+    dst = np.array([[[0, 1]], [[1, 1]], [[1, 0]], [0, 0]], dtype=np.float32)
+    transform = cv2.getPerspectiveTransform(green_markers, dst)
+
+    red_poses = cv2.perspectiveTransform(red_boxes, transform).squeeze()
+    blue_poses = cv2.perspectiveTransform(blue_boxes, transform).squeeze()
+
+    boxes_positions = np.vstack((red_poses, blue_poses))
     boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
     return boxes_positions, boxes_orientations

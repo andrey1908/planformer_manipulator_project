@@ -16,9 +16,9 @@ def prepare_prompts(input_folder, output_folder):
         # show(hsv)
         for prompt in ("red_box", "blue_box"):
             if prompt == "red_box":
-                segmentation, _ = segment_red_boxes_hsv(hsv)
+                segmentation, _, _ = segment_red_boxes_hsv(hsv)
             elif prompt == "blue_box":
-                segmentation, _ = segment_blue_boxes_hsv(hsv)
+                segmentation, _, _ = segment_blue_boxes_hsv(hsv)
             segmentation *= 255
             # show(segmentation)
 
@@ -62,7 +62,7 @@ def prepare_prompts(input_folder, output_folder):
         # show(hsv)
         for prompt in ("stop_line",):
             if prompt == "stop_line":
-                segmentation, _ = segment_stop_line_hsv(hsv)
+                segmentation, _, _ = segment_stop_line_hsv(hsv)
             segmentation *= 255
             # show(segmentation)
 
@@ -106,7 +106,7 @@ def prepare_prompts(input_folder, output_folder):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
         for prompt in ("goal",):
             if prompt == "goal":
-                segmentation, _ = segment_goal_hsv(hsv)
+                segmentation, _, _ = segment_goal_hsv(hsv)
             segmentation *= 255
             # show(segmentation)
 

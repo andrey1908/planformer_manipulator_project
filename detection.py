@@ -36,11 +36,8 @@ def detect_boxes_aruco(image, view, K, D, aruco_size):
 
 def detect_boxes_on_image(image, view):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    red_mask, _ = segment_red_boxes_hsv(hsv, view)
-    blue_mask, _ = segment_blue_boxes_hsv(hsv, view)
-
-    red_polygons, _ = cv2.findContours(red_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    blue_polygons, _ = cv2.findContours(blue_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    _, _, red_polygons = segment_red_boxes_hsv(hsv, view)
+    _, _, blue_polygons = segment_blue_boxes_hsv(hsv, view)
 
     red_points = list()
     for red_polygon in red_polygons:
