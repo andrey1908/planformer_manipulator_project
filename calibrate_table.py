@@ -5,7 +5,7 @@ from aruco import get_aruco_corners_3d
 from estimate_plane_frame import estimate_plane_frame
 
 
-def calibrate_table(image, view, K, D, aruco_size):
+def calibrate_table_by_aruco(image, view, K, D, aruco_size):
     arucos = detect_table_aruco(image, view, K, D, aruco_size)
     if arucos.n != 4:
         return None, None

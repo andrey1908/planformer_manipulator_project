@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from aruco import draw_aruco
-from calibrate_table import calibrate_table
+from calibrate_table import calibrate_table_by_aruco
 from camera_utils import stream, StreamCallbacks
 from detection import detect_boxes_aruco
 from segmentation import segment_scene_colorful
@@ -9,7 +9,7 @@ from segmentation import segment_scene_colorful
 
 def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
     def calibrate_and_draw_table_frame(image, key):
-        camera2table, _ = calibrate_table(image, view, K, D, aruco_size)
+        camera2table, _ = calibrate_table_by_aruco(image, view, K, D, aruco_size)
         table_detected = camera2table is not None
         if table_detected != calibrate_and_draw_table_frame.table_detected:
             if table_detected:
