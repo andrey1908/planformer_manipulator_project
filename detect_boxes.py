@@ -1,0 +1,65 @@
+import numpy as np
+import cv2
+from transforms3d.quaternions import axangle2quat
+from transforms3d.axangles import mat2axangle
+from detection import detect_boxes_aruco, detect_boxes_on_image
+from estimate_plane_frame import intersection_with_XY
+
+
+def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
+    arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
+    print(f"Detected {arucos.n} boxes")
+    if arucos.n == 0:
+        return np.empty((0, 2)), np.empty((0, 4))
+
+    marker_poses_in_camera = np.tile(np.eye(4), (arucos.n, 1, 1))
+    for i in range(arucos.n):
+        marker_poses_in_camera[i, 0:3, 0:3], _ = cv2.Rodrigues(arucos.rvecs[i])
+        marker_poses_in_camera[i, 0:3, 3] = arucos.tvecs[i, 0]
+    # marker_poses_in_camera.shape = (n, 4, 4)
+
+    marker_poses = np.matmul(np.linalg.inv(camera2table), marker_poses_in_camera)
+    # marker_poses.shape = (n, 4, 4)
+
+    marker2box = np.eye(4)
+    marker2box[2, 3] = -box_size / 2
+    boxes_poses = np.matmul(marker_poses, marker2box)
+    # boxes_poses.shape = (n, 4, 4)
+
+    boxes_positions = boxes_poses[:, 0:2, 3]
+    # boxes_positions.shape = (n, 2)
+
+    boxes_orientations = list()
+    for i in range(arucos.n):
+        axis, angle = mat2axangle(boxes_poses[i, 0:3, 0:3])
+        assert abs(np.linalg.norm(axis) - 1.0) < 0.0001
+        newAxis = np.array([0., 0., 1.])
+        newAngle = angle * np.dot(axis, newAxis)
+        quat = axangle2quat(newAxis, newAngle)
+        quat = np.array([quat[1], quat[2], quat[3], quat[0]])
+        boxes_orientations.append(quat)
+    boxes_orientations = np.array(boxes_orientations)
+    # boxes_orientations.shape = (n, 4)
+
+    return boxes_positions, boxes_orientations
+
+
+def detect_boxes_segm(image, view, K, D, camera2table, box_size):
+    image_points, points_numbers = detect_boxes_on_image(image, view)
+
+    table2camera = np.linalg.inv(camera2table)
+    if len(image_points) > 0:
+        points = cv2.undistortPoints(image_points, K, D)
+        points = points[:, 0, :]
+        points = np.hstack((points, np.ones((len(points), 1))))
+        points = intersection_with_XY(points, camera2table)
+        points = np.hstack((points, np.ones((len(points), 1))))
+        points = np.expand_dims(points, axis=-1)
+        points = np.matmul(table2camera, points)
+        points = points[:, :, 0]
+    else:
+        points = np.empty((0, 4))
+
+    boxes_positions = points[:, :2]
+    boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
+    return boxes_positions, boxes_orientations
