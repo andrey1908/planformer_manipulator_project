@@ -68,10 +68,14 @@ def segment_scene_colorful(image, view=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
-    red_mask, num_red, _ = segment_red_boxes_hsv(hsv, view)
-    blue_mask, num_blue, _ = segment_blue_boxes_hsv(hsv, view)
-    goal_mask, num_goals, _ = segment_goal_hsv(hsv, view)
-    stop_line_mask, num_stop_lines, _ = segment_stop_line_hsv(hsv, view)
+    red_mask, red_polygons = segment_red_boxes_hsv(hsv, view)
+    blue_mask, blue_polygons = segment_blue_boxes_hsv(hsv, view)
+    goal_mask, goal_polygons = segment_goal_hsv(hsv, view)
+    stop_line_mask, stop_line_polygons = segment_stop_line_hsv(hsv, view)
+    num_red = len(red_polygons)
+    num_blue = len(blue_polygons)
+    num_goals = len(goal_polygons)
+    num_stop_lines = len(stop_line_polygons)
 
     # assert num_goals == 3
     # assert num_stop_lines == 1
@@ -90,10 +94,14 @@ def segment_scene(image, view=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
-    red_mask, num_red, _ = segment_red_boxes_hsv(hsv, view)
-    blue_mask, num_blue, _ = segment_blue_boxes_hsv(hsv, view)
-    goal_mask, num_goals, _ = segment_goal_hsv(hsv, view)
-    stop_line_mask, num_stop_lines, _ = segment_stop_line_hsv(hsv, view)
+    red_mask, red_polygons = segment_red_boxes_hsv(hsv, view)
+    blue_mask, blue_polygons = segment_blue_boxes_hsv(hsv, view)
+    goal_mask, goal_polygons = segment_goal_hsv(hsv, view)
+    stop_line_mask, stop_line_polygons = segment_stop_line_hsv(hsv, view)
+    num_red = len(red_polygons)
+    num_blue = len(blue_polygons)
+    num_goals = len(goal_polygons)
+    num_stop_lines = len(stop_line_polygons)
 
     assert num_goals == 3
     assert num_stop_lines == 1

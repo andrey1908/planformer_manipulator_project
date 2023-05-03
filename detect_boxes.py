@@ -70,9 +70,9 @@ def detect_boxes_segm(image, view, K, D, camera2table, box_size):
 
 def detect_boxes_visual(image, view, K, D):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    _, _, red_polygons = segment_red_boxes_hsv(hsv, view)
-    _, _, blue_polygons = segment_blue_boxes_hsv(hsv, view)
-    _, _, green_polygons = segment_green_markers_hsv(hsv, view)
+    _, red_polygons = segment_red_boxes_hsv(hsv, view)
+    _, blue_polygons = segment_blue_boxes_hsv(hsv, view)
+    _, green_polygons = segment_green_markers_hsv(hsv, view)
     assert(len(green_polygons) == 4)
 
     red_boxes = list()
