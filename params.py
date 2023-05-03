@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from aruco import RetryRejectedParameters
+import pickle
 
 
 def get_aruco_dict():
@@ -31,6 +32,12 @@ def get_camera_calib(calib_file):
     return K, D
 
 
+def get_segmentation_roi(segmentation_roi_file):
+    with open(segmentation_roi_file, 'rb') as f:
+        segmentation_roi = pickle.load(f)
+    return segmentation_roi
+
+
 aruco_dict = get_aruco_dict()
 aruco_detection_params = get_aruco_detection_params()
 retry_rejected_params = get_retry_rejected_params()
@@ -40,3 +47,5 @@ K, D = get_camera_calib('data/calib.npz')
 table_aruco_size = 0.132
 box_aruco_size = 0.0172
 box_size = 0.03
+
+segmentation_roi = get_segmentation_roi("data/segmentation_roi.pickle")

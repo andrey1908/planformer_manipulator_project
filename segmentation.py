@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from params import segmentation_roi
 
 
 def segment_and_draw_boxes_by_aruco(draw, arucos, K, D,
@@ -114,12 +115,9 @@ def segment_red_boxes_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([147 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "top":
-            y_range = slice(0, 1024)
-        elif view == "front":
-            y_range = slice(0, 637)
+        x_range, y_range = segmentation_roi[view]["boxes"]
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, :] = mask_all_image[y_range, :]
+        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
         mask = mask_all_image
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
@@ -132,12 +130,9 @@ def segment_blue_boxes_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([161 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "top":
-            y_range = slice(0, 1024)
-        elif view == "front":
-            y_range = slice(0, 637)
+        x_range, y_range = segmentation_roi[view]["boxes"]
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, :] = mask_all_image[y_range, :]
+        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
         mask = mask_all_image
     mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
@@ -150,12 +145,7 @@ def segment_goal_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([45 + 9, 255, 255], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "top":
-            x_range = slice(400, 900)
-            y_range = slice(421, 754)
-        elif view == "front":
-            x_range = slice(440, 850)
-            y_range = slice(293, 448)
+        x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
@@ -170,12 +160,7 @@ def segment_stop_line_hsv(hsv: np.ndarray, view: str=""):
     up = np.array([255, 255, 80], dtype=np.uint8)
     mask_all_image = cv2.inRange(hsv, low, up)
     if view:
-        if view == "top":
-            x_range = slice(400, 900)
-            y_range = slice(421, 754)
-        elif view == "front":
-            x_range = slice(440, 850)
-            y_range = slice(293, 448)
+        x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
         mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
