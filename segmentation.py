@@ -63,7 +63,7 @@ def segment_and_draw_boxes_by_aruco(draw, arucos, K, D,
     cv2.addWeighted(draw, 0.7, overlay, 0.3, 0, dst=draw)
 
 
-def segment_scene_colorful(image: np.ndarray, view: str=""):
+def segment_scene_colorful(image, view=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
@@ -85,7 +85,7 @@ def segment_scene_colorful(image: np.ndarray, view: str=""):
     return segmentation, (num_red, num_blue)
 
 
-def segment_scene(image: np.ndarray, view: str=""):
+def segment_scene(image, view=""):
     assert len(image.shape) == 3
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
 
@@ -107,75 +107,80 @@ def segment_scene(image: np.ndarray, view: str=""):
     return segmentation, (num_red, num_blue)
 
 
-def segment_red_boxes_hsv(hsv: np.ndarray, view: str=""):
+def segment_by_color(image, min_color, max_color, \
+        x_range=slice(0, None), y_range=slice(0, None),
+        refine_mask=False, min_polygon_length=100, max_polygon_length=1000):
+    mask_full = cv2.inRange(image, min_color, max_color)
+    mask = np.zeros(mask_full.shape, dtype=mask_full.dtype)
+    mask[y_range, x_range] = mask_full[y_range, x_range]
+    if refine_mask:
+        polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        refined_mask = np.zeros(mask.shape, dtype=mask.dtype)
+        num = 0
+        out_polygons = list()
+        for polygon in polygons:
+            if min_polygon_length <= len(polygon) <= max_polygon_length:
+                cv2.fillPoly(refined_mask, [polygon], 1)
+                out_polygons.append(polygon)
+                num += 1
+        return refined_mask, num, out_polygons
+    else:
+        return mask
+
+
+def segment_red_boxes_hsv(hsv, view=""):
     assert view in ("top", "front", "")
     # shift hue so that red color is continuous
     hsv = hsv + np.array([150, 0, 0], dtype=np.uint8).reshape(1, 1, 3)
-    low = np.array([147 - 9, 110, 120], dtype=np.uint8)
-    up = np.array([147 + 9, 255, 255], dtype=np.uint8)
-    mask_all_image = cv2.inRange(hsv, low, up)
+    min_color = np.array([147 - 9, 110, 120], dtype=np.uint8)
+    max_color = np.array([147 + 9, 255, 255], dtype=np.uint8)
     if view:
         x_range, y_range = segmentation_roi[view]["boxes"]
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
-        mask = mask_all_image
-    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+        x_range, y_range = slice(0, None), slice(0, None)
+    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+        x_range=x_range, y_range=y_range,
+        refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
     return mask, num
 
 
-def segment_blue_boxes_hsv(hsv: np.ndarray, view: str=""):
+def segment_blue_boxes_hsv(hsv, view=""):
     assert view in ("top", "front", "")
-    low = np.array([161 - 9, 110, 120], dtype=np.uint8)
-    up = np.array([161 + 9, 255, 255], dtype=np.uint8)
-    mask_all_image = cv2.inRange(hsv, low, up)
+    min_color = np.array([161 - 9, 110, 120], dtype=np.uint8)
+    max_color = np.array([161 + 9, 255, 255], dtype=np.uint8)
     if view:
         x_range, y_range = segmentation_roi[view]["boxes"]
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
-        mask = mask_all_image
-    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+        x_range, y_range = slice(0, None), slice(0, None)
+    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+        x_range=x_range, y_range=y_range,
+        refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
     return mask, num
 
 
-def segment_goal_hsv(hsv: np.ndarray, view: str=""):
+def segment_goal_hsv(hsv, view=""):
     assert view in ("top", "front", "")
-    low = np.array([45 - 9, 60, 160], dtype=np.uint8)
-    up = np.array([45 + 9, 255, 255], dtype=np.uint8)
-    mask_all_image = cv2.inRange(hsv, low, up)
+    min_color = np.array([45 - 9, 60, 160], dtype=np.uint8)
+    max_color = np.array([45 + 9, 255, 255], dtype=np.uint8)
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
-        mask = mask_all_image
-    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+        x_range, y_range = slice(0, None), slice(0, None)
+    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+        x_range=x_range, y_range=y_range,
+        refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
     return mask, num
 
 
 def segment_stop_line_hsv(hsv: np.ndarray, view: str=""):
     assert view in ("top", "front", "")
-    low = np.array([0, 0, 0], dtype=np.uint8)
-    up = np.array([255, 255, 80], dtype=np.uint8)
-    mask_all_image = cv2.inRange(hsv, low, up)
+    min_color = np.array([0, 0, 0], dtype=np.uint8)
+    max_color = np.array([255, 255, 80], dtype=np.uint8)
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
-        mask = np.zeros(mask_all_image.shape, dtype=mask_all_image.dtype)
-        mask[y_range, x_range] = mask_all_image[y_range, x_range]
     else:
-        mask = mask_all_image
-    mask, num = filter_mask_with_polygons(mask, min_polygon_lenght=100, fill_mask_value=1)
+        x_range, y_range = slice(0, None), slice(0, None)
+    mask, num, _ = segment_by_color(hsv, min_color, max_color,
+        x_range=x_range, y_range=y_range,
+        refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
     return mask, num
-
-
-def filter_mask_with_polygons(mask: np.ndarray, min_polygon_lenght=100, fill_mask_value=1):
-    polygons, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    filtered_mask = np.zeros(mask.shape, dtype=mask.dtype)
-    num = 0
-    for polygon in polygons:
-        if len(polygon) < min_polygon_lenght:
-            continue
-        cv2.fillPoly(filtered_mask, [polygon], fill_mask_value)
-        num += 1
-    return filtered_mask, num
