@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from aruco import RetryRejectedParameters
 import pickle
+import os.path as osp
 
 
 def get_aruco_dict():
@@ -33,8 +34,14 @@ def get_camera_calib(calib_file):
 
 
 def get_segmentation_roi(segmentation_roi_file):
-    with open(segmentation_roi_file, 'rb') as f:
-        segmentation_roi = pickle.load(f)
+    if osp.isfile(segmentation_roi_file):
+        with open(segmentation_roi_file, 'rb') as f:
+            segmentation_roi = pickle.load(f)
+    else:
+        full_image_roi = (slice(0, None), slice(0, None))
+        top_roi = {"boxes": full_image_roi, "goal_and_stop_line": full_image_roi}
+        front_roi = {"boxes": full_image_roi, "goal_and_stop_line": full_image_roi}
+        segmentation_roi = {"top": top_roi, "front": front_roi}
     return segmentation_roi
 
 
