@@ -3,7 +3,7 @@ import cv2
 import os
 import os.path as osp
 from aruco import detect_aruco, select_aruco_poses, PoseSelectors
-from segmentation import segment_and_draw_boxes_by_aruco
+from segment_scene import segment_and_draw_boxes_by_aruco
 from params import aruco_dict, aruco_detection_params
 
 
