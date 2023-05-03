@@ -44,7 +44,7 @@ def segment_goal_hsv(hsv, view=""):
         x_range, y_range = slice(0, None), slice(0, None)
     mask, num, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
-        refine_mask=True, min_polygon_length=100, max_polygon_length=1000)
+        refine_mask=True, min_polygon_length=100, max_polygon_length=3000)
     return mask, num, polygons
 
 
