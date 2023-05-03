@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, PoseSelectors
 from params import aruco_dict, aruco_detection_params, retry_rejected_params
-from segmentation import segment_red_boxes_hsv, segment_blue_boxes_hsv
+from segmentation import segment_green_markers_hsv, segment_red_boxes_hsv, segment_blue_boxes_hsv
 
 
 def detect_table_aruco(image, view, K, D, aruco_size):
@@ -34,21 +34,32 @@ def detect_boxes_aruco(image, view, K, D, aruco_size):
     return arucos
 
 
-def detect_boxes_on_image(image, view):
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    _, red_polygons = segment_red_boxes_hsv(hsv, view)
-    _, blue_polygons = segment_blue_boxes_hsv(hsv, view)
+def detect_red_boxes_on_image_hsv(hsv, view):
+    _, red_boxes_polygons = segment_red_boxes_hsv(hsv, view)
+    red_boxes = get_centers_of_polygons(red_boxes_polygons)
+    # red_boxes.shape = (n, 1, 2)
+    return red_boxes
 
-    red_points = list()
-    for red_polygon in red_polygons:
-        u, v = red_polygon.mean(axis=0)[0]
-        red_points.append(np.array([[u, v]]))
 
-    blue_points = list()
-    for blue_polygon in blue_polygons:
-        u, v = blue_polygon.mean(axis=0)[0]
-        blue_points.append(np.array([[u, v]]))
+def detect_blue_boxes_on_image_hsv(hsv, view):
+    _, blue_boxes_polygons = segment_blue_boxes_hsv(hsv, view)
+    blue_boxes = get_centers_of_polygons(blue_boxes_polygons)
+    # blue_boxes.shape = (n, 1, 2)
+    return blue_boxes
 
-    points = np.array(red_points + blue_points)
-    points_numbers = [("red", len(red_points)), ("blue", len(blue_points))]
-    return points, points_numbers
+
+def detect_green_markers_on_image_hsv(hsv, view):
+    _, green_markers_polygons = segment_green_markers_hsv(hsv, view)
+    green_markers = get_centers_of_polygons(green_markers_polygons)
+    # green_markers.shape = (n, 1, 2)
+    return green_markers
+
+
+def get_centers_of_polygons(polygons):
+    centers = list()
+    for polygon in polygons:
+        u, v = polygon.mean(axis=0)[0]
+        centers.append([(u, v)])
+    centers = np.array(centers)
+    # centers.shape = (n, 1, 2)
+    return centers
