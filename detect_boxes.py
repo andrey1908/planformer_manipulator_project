@@ -4,10 +4,9 @@ from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
     detect_blue_boxes_on_image_hsv
-from estimate_plane_frame import intersection_with_XY
 
 
-def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
+def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size):
     arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
     print(f"Detected {arucos.n} boxes")
     if arucos.n == 0:
@@ -19,7 +18,7 @@ def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
         marker_poses_in_camera[i, 0:3, 3] = arucos.tvecs[i, 0]
     # marker_poses_in_camera.shape = (n, 4, 4)
 
-    marker_poses = np.matmul(np.linalg.inv(camera2table), marker_poses_in_camera)
+    marker_poses = table_frame.to_plane(marker_poses_in_camera, is_poses=True)
     # marker_poses.shape = (n, 4, 4)
 
     marker2box = np.eye(4)
@@ -45,24 +44,20 @@ def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
     return boxes_positions, boxes_orientations
 
 
-def detect_boxes_segm(image, view, K, D, camera2table, box_size):
+def detect_boxes_segm(image, view, K, D, table_frame, box_size):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
     boxes = np.vstack((red_boxes, blue_boxes))
 
-    table2camera = np.linalg.inv(camera2table)
     if len(boxes) > 0:
         points = cv2.undistortPoints(boxes, K, D)
         points = points[:, 0, :]
         points = np.hstack((points, np.ones((len(points), 1))))
-        points = intersection_with_XY(points, camera2table)
-        points = np.hstack((points, np.ones((len(points), 1))))
-        points = np.expand_dims(points, axis=-1)
-        points = np.matmul(table2camera, points)
-        points = points[:, :, 0]
+        points = table_frame.intersection_with_plane(points)
+        points = table_frame.to_plane(points)
     else:
-        points = np.empty((0, 4))
+        points = np.empty((0, 3))
 
     boxes_positions = points[:, :2]
     # boxes_positions.shape = (n, 2)

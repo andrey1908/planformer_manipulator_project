@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from detection import detect_table_aruco, detect_table_markers_on_image_hsv
 from aruco import get_aruco_corners_3d
-from estimate_plane_frame import estimate_plane_frame
+from plane_frame import PlaneFrame
 from shapely.geometry import Polygon
 
 
@@ -11,8 +11,8 @@ def calibrate_table_by_aruco(image, view, K, D, aruco_size):
     if arucos.n != 4:
         return None, None
     corners_3d = get_aruco_corners_3d(arucos)
-    camera2table = estimate_plane_frame(corners_3d.reshape(16, 3))
-    return camera2table, corners_3d
+    table_frame = PlaneFrame.from_points(corners_3d.reshape(16, 3))
+    return table_frame, corners_3d
 
 
 def calibrate_table_by_markers(image, view, K, D):

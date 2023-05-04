@@ -9,8 +9,8 @@ from segmentation import segment_scene_colorful
 
 def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
     def calibrate_and_draw_table_frame(image, key):
-        camera2table, _ = calibrate_table_by_aruco(image, view, K, D, aruco_size)
-        table_detected = camera2table is not None
+        table_frame, _ = calibrate_table_by_aruco(image, view, K, D, aruco_size)
+        table_detected = table_frame is not None
         if table_detected != calibrate_and_draw_table_frame.table_detected:
             if table_detected:
                 print("Table detected")
@@ -19,6 +19,7 @@ def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
             calibrate_and_draw_table_frame.table_detected = table_detected
         if not table_detected:
             return
+        camera2table = table_frame.origin2plane()
         rvec, _ = cv2.Rodrigues(camera2table[0:3, 0:3])
         tvec = camera2table[0:3, 3]
         cv2.drawFrameAxes(image, K, D, rvec, tvec, 0.1)
