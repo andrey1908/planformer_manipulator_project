@@ -3,9 +3,8 @@ import cv2
 from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
-    detect_blue_boxes_on_image_hsv, detect_table_markers_on_image_hsv
+    detect_blue_boxes_on_image_hsv
 from estimate_plane_frame import intersection_with_XY
-from shapely.geometry import Polygon
 
 
 def detect_boxes(image, view, K, D, camera2table, aruco_size, box_size):
@@ -66,33 +65,23 @@ def detect_boxes_segm(image, view, K, D, camera2table, box_size):
         points = np.empty((0, 4))
 
     boxes_positions = points[:, :2]
+    # boxes_positions.shape = (n, 2)
     boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes), 1))
+    # boxes_orientations.shape = (n, 4)
     return boxes_positions, boxes_orientations
 
 
-def detect_boxes_visual(image, view, K, D):
+def detect_boxes_visual(image, view, K, D, table_transform):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
-    table_markers = detect_table_markers_on_image_hsv(hsv, view)
-    assert(len(table_markers) == 4)
 
     red_boxes = cv2.undistortPoints(red_boxes, K, D)
     blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
-    table_markers = cv2.undistortPoints(table_markers, K, D)
-
-    table_markers.sort(key=lambda a, b: np.sign(sum(a) - sum(b)))
-    p = Polygon(table_markers[:, 0, :])
-    if p.exterior.is_ccw:
-        table_markers[[1, 3]] = table_markers[[3, 1]]
-        p = Polygon(table_markers[:, 0, :])
-    assert(p.exterior.is_simple)
-    assert(not p.exterior.is_ccw)
-
-    dst = np.array([[[0, 1]], [[1, 1]], [[1, 0]], [0, 0]], dtype=np.float32)
-    transform = cv2.getPerspectiveTransform(table_markers, dst)
 
     boxes = np.vstack((red_boxes, blue_boxes))
-    boxes_positions = cv2.perspectiveTransform(boxes, transform).squeeze()
+    boxes_positions = cv2.perspectiveTransform(boxes, table_transform).squeeze()
+    # boxes_positions.shape = (n, 2)
     boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
+    # boxes_orientations.shape = (n, 4)
     return boxes_positions, boxes_orientations
