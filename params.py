@@ -45,6 +45,13 @@ def get_segmentation_roi(segmentation_roi_file):
     return segmentation_roi
 
 
+def get_target_table_markers(target_table_markers_file):
+    target_table_markers = np.load(target_table_markers_file)
+    target_table_markers = target_table_markers.astype(np.float32)
+    target_table_markers = np.expand_dims(target_table_markers, axis=1)
+    return target_table_markers
+
+
 aruco_dict = get_aruco_dict()
 aruco_detection_params = get_aruco_detection_params()
 retry_rejected_params = get_retry_rejected_params()
@@ -61,3 +68,5 @@ table_aruco_dist_3_2 = 30.0
 table_aruco_dist_2_0 = 79.5
 
 segmentation_roi = get_segmentation_roi(osp.join(osp.dirname(__file__), "data/segmentation_roi.pickle"))
+
+target_table_markers = get_target_table_markers(osp.join(osp.dirname(__file__), "data/target_table_markers.npy"))

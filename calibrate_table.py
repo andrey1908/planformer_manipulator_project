@@ -4,6 +4,7 @@ from detection import detect_table_aruco, detect_table_markers_on_image_hsv
 from aruco import get_aruco_corners_3d
 from plane_frame import PlaneFrame
 from shapely.geometry import Polygon
+from params import target_table_markers
 
 
 def calibrate_table_by_aruco(image, view, K, D, aruco_size):
@@ -23,7 +24,10 @@ def calibrate_table_by_markers(image, view, K, D):
     # table_markers.shape = (4, 1, 2)
 
     table_markers = cv2.undistortPoints(table_markers, K, D)
-    table_markers.sort(key=lambda a, b: np.sign(sum(a) - sum(b)))
+    keys = table_markers.sum(axis=(1, 2))
+    order = keys.argsort()
+    table_markers = table_markers[order]
+    table_markers[[2, 3]] = table_markers[[3, 2]]
     p = Polygon(table_markers[:, 0, :])
     if p.exterior.is_ccw:
         table_markers[[1, 3]] = table_markers[[3, 1]]
@@ -31,6 +35,5 @@ def calibrate_table_by_markers(image, view, K, D):
     if not p.exterior.is_simple or p.exterior.is_ccw:
         return None
 
-    dst = np.array([[[0, 1]], [[1, 1]], [[1, 0]], [0, 0]], dtype=np.float32)
-    table_transform = cv2.getPerspectiveTransform(table_markers, dst)
+    table_transform = cv2.getPerspectiveTransform(table_markers, target_table_markers)
     return table_transform
