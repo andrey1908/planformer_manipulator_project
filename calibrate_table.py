@@ -4,7 +4,6 @@ from detection import detect_table_aruco, detect_table_markers_on_image_hsv
 from aruco import get_aruco_corners_3d
 from plane_frame import PlaneFrame
 from shapely.geometry import Polygon
-from params import target_table_markers
 
 
 def calibrate_table_by_aruco(image, view, K, D, aruco_size):
@@ -16,7 +15,7 @@ def calibrate_table_by_aruco(image, view, K, D, aruco_size):
     return table_frame, corners_3d
 
 
-def calibrate_table_by_markers(image, view, K, D):
+def calibrate_table_by_markers(image, view, K, D, target_table_markers):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     table_markers = detect_table_markers_on_image_hsv(hsv, view)
     if len(table_markers) != 4:
