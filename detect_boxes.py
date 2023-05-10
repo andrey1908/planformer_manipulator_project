@@ -27,12 +27,14 @@ def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size, use_inter
     # boxes_poses.shape = (n, 4, 4)
 
     if use_intersection:
-        table_correction = np.eye(4)
-        table_correction[2, 3] = box_size
-        table_frame_corrected = \
-            PlaneFrame.from_plane_frame_pose(np.matmul(table_frame.origin2plane(), table_correction))
-        aruco_centers = np.mean(arucos.corners, axis=2)
-        if len(aruco_centers) > 0:
+        if arucos.n > 0:
+            table_correction = np.eye(4)
+            table_correction[2, 3] = box_size
+            table_frame_corrected = \
+                PlaneFrame.from_plane_frame_pose(
+                    np.matmul(table_frame.origin2plane(), table_correction))
+
+            aruco_centers = np.mean(arucos.corners, axis=2)
             points = cv2.undistortPoints(aruco_centers, K, D)
             points = points[:, 0, :]
             points = np.hstack((points, np.ones((len(points), 1))))
@@ -68,10 +70,16 @@ def detect_boxes_segm(image, view, K, D, table_frame, box_size):
     boxes = np.vstack((red_boxes, blue_boxes))
 
     if len(boxes) > 0:
+        table_correction = np.eye(4)
+        table_correction[2, 3] = box_size / 2
+        table_frame_corrected = \
+            PlaneFrame.from_plane_frame_pose(
+                np.matmul(table_frame.origin2plane(), table_correction))
+
         points = cv2.undistortPoints(boxes, K, D)
         points = points[:, 0, :]
         points = np.hstack((points, np.ones((len(points), 1))))
-        points = table_frame.intersection_with_plane(points)
+        points = table_frame_corrected.intersection_with_plane(points)
         points = table_frame.to_plane(points)
     else:
         points = np.empty((0, 3))
