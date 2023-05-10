@@ -30,7 +30,7 @@ def detect_boxes_aruco(image, view, K, D, aruco_size):
         retry_rejected=True, retry_rejected_params=retry_rejected_params,
         aruco_dict=aruco_dict, params=aruco_detection_params)
     arucos = select_aruco_poses(arucos, pose_selector)
-    arucos = select_aruco_markers(arucos, lambda id: id >= 4)
+    arucos = select_aruco_markers(arucos, lambda id: id >= 4 and id <= 11)
     return arucos
 
 
