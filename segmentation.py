@@ -64,13 +64,13 @@ def segment_stop_line_hsv(hsv, view=""):
 
 def segment_table_markers_hsv(hsv, view=""):
     assert view in ("top", "front", "")
-    min_color = np.array([120 - 9, 110, 120], dtype=np.uint8)
-    max_color = np.array([120 + 9, 255, 255], dtype=np.uint8)
+    min_color = np.array([90, 90, 100], dtype=np.uint8)
+    max_color = np.array([130, 255, 255], dtype=np.uint8)
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
     mask, polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=20, max_polygon_length=200)
+        refine=True, min_polygon_length=30, max_polygon_length=100)
     return mask, polygons
