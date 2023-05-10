@@ -39,8 +39,8 @@ def get_segmentation_roi(segmentation_roi_file):
             segmentation_roi = pickle.load(f)
     else:
         full_image_roi = (slice(0, None), slice(0, None))
-        top_roi = {"boxes": full_image_roi, "goal_and_stop_line": full_image_roi}
-        front_roi = {"boxes": full_image_roi, "goal_and_stop_line": full_image_roi}
+        top_roi = {"working_area": full_image_roi, "goal_and_stop_line": full_image_roi}
+        front_roi = {"working_area": full_image_roi, "goal_and_stop_line": full_image_roi}
         segmentation_roi = {"top": top_roi, "front": front_roi}
     return segmentation_roi
 

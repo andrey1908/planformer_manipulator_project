@@ -11,7 +11,7 @@ def segment_red_boxes_hsv(hsv, view=""):
     min_color = np.array([147 - 9, 110, 120], dtype=np.uint8)
     max_color = np.array([147 + 9, 255, 255], dtype=np.uint8)
     if view:
-        x_range, y_range = segmentation_roi[view]["boxes"]
+        x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
     mask, polygons = segment_by_color(hsv, min_color, max_color,
@@ -25,7 +25,7 @@ def segment_blue_boxes_hsv(hsv, view=""):
     min_color = np.array([161 - 9, 110, 120], dtype=np.uint8)
     max_color = np.array([161 + 9, 255, 255], dtype=np.uint8)
     if view:
-        x_range, y_range = segmentation_roi[view]["boxes"]
+        x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
     mask, polygons = segment_by_color(hsv, min_color, max_color,
@@ -67,7 +67,7 @@ def segment_table_markers_hsv(hsv, view=""):
     min_color = np.array([120 - 9, 110, 120], dtype=np.uint8)
     max_color = np.array([120 + 9, 255, 255], dtype=np.uint8)
     if view:
-        x_range, y_range = segmentation_roi[view]["boxes"]
+        x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
     mask, polygons = segment_by_color(hsv, min_color, max_color,
