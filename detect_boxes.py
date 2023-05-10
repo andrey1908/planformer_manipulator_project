@@ -4,9 +4,10 @@ from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
     detect_blue_boxes_on_image_hsv
+from plane_frame import PlaneFrame
 
 
-def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size):
+def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size, use_intersection=True):
     arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
     if arucos.n == 0:
         return np.empty((0, 2)), np.empty((0, 4))
@@ -25,8 +26,25 @@ def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size):
     boxes_poses = np.matmul(marker_poses, marker2box)
     # boxes_poses.shape = (n, 4, 4)
 
-    boxes_positions = boxes_poses[:, 0:2, 3]
-    # boxes_positions.shape = (n, 2)
+    if use_intersection:
+        table_correction = np.eye(4)
+        table_correction[2, 3] = box_size
+        table_frame_corrected = \
+            PlaneFrame.from_plane_frame_pose(np.matmul(table_frame.origin2plane(), table_correction))
+        aruco_centers = np.mean(arucos.corners, axis=2)
+        if len(aruco_centers) > 0:
+            points = cv2.undistortPoints(aruco_centers, K, D)
+            points = points[:, 0, :]
+            points = np.hstack((points, np.ones((len(points), 1))))
+            points = table_frame_corrected.intersection_with_plane(points)
+            points = table_frame.to_plane(points)
+            points[:, 2] -= box_size / 2
+        else:
+            points = np.empty((0, 4))
+        boxes_positions = points[:, :2]
+    else:
+        boxes_positions = boxes_poses[:, 0:2, 3]
+        # boxes_positions.shape = (n, 2)
 
     boxes_orientations = list()
     for i in range(arucos.n):
