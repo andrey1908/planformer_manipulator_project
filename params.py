@@ -48,7 +48,6 @@ def get_segmentation_roi(segmentation_roi_file):
 def get_target_table_markers(target_table_markers_file):
     target_table_markers = np.load(target_table_markers_file)
     target_table_markers = target_table_markers.astype(np.float32)
-    target_table_markers = np.expand_dims(target_table_markers, axis=1)
     return target_table_markers
 
 
