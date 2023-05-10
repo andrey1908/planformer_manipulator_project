@@ -55,4 +55,9 @@ table_aruco_size = 0.132
 box_aruco_size = 0.0172
 box_size = 0.03
 
+table_aruco_dist_0_1 = 29.9
+table_aruco_dist_1_3 = 79.6
+table_aruco_dist_3_2 = 30.0
+table_aruco_dist_2_0 = 79.5
+
 segmentation_roi = get_segmentation_roi("data/segmentation_roi.pickle")
