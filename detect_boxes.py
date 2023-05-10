@@ -8,7 +8,6 @@ from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
 
 def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size):
     arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
-    print(f"Detected {arucos.n} boxes")
     if arucos.n == 0:
         return np.empty((0, 2)), np.empty((0, 4))
 
