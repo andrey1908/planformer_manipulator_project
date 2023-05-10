@@ -37,6 +37,7 @@ def get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, aruco_si
 
     table_markers = np.dstack((table_markers, np.ones((len(table_markers), 1))))
     table_markers_3d = table_frame.intersection_with_plane(table_markers)
+    table_markers_3d = table_frame.to_plane(table_markers_3d)
     table_markers_2d = table_markers_3d[:, :, :2]
     table_markers_2d = table_markers_2d.astype(np.float32)
     return table_markers_2d
