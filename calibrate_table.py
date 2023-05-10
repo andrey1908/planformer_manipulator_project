@@ -43,7 +43,12 @@ def get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, aruco_si
     return table_markers_2d
 
 
-def calibrate_table_by_markers(image, view, K, D, target_table_markers):
+def calibrate_table_by_markers(image, view, K, D, target_table_markers=None, table_aruco_size=None):
+    assert (target_table_markers is not None) or (table_aruco_size is not None)
+    if target_table_markers is None:
+        target_table_markers = \
+            get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, table_aruco_size)
+
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     table_markers = detect_table_markers_on_image_hsv(hsv, view)
     if len(table_markers) != 4:
