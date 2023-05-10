@@ -4,7 +4,7 @@ from aruco import draw_aruco
 from calibrate_table import calibrate_table_by_aruco
 from camera_utils import stream, StreamCallbacks
 from detection import detect_boxes_aruco
-from segmentation import segment_scene_colorful
+from segment_scene import segment_scene_colorful
 
 
 def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
