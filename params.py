@@ -49,7 +49,7 @@ aruco_dict = get_aruco_dict()
 aruco_detection_params = get_aruco_detection_params()
 retry_rejected_params = get_retry_rejected_params()
 
-K, D = get_camera_calib('data/calib.npz')
+K, D = get_camera_calib(osp.join(osp.dirname(__file__), "data/calib.npz"))
 
 table_aruco_size = 0.132
 box_aruco_size = 0.0172
@@ -60,4 +60,4 @@ table_aruco_dist_1_3 = 79.6
 table_aruco_dist_3_2 = 30.0
 table_aruco_dist_2_0 = 79.5
 
-segmentation_roi = get_segmentation_roi("data/segmentation_roi.pickle")
+segmentation_roi = get_segmentation_roi(osp.join(osp.dirname(__file__), "data/segmentation_roi.pickle"))
