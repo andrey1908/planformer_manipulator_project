@@ -35,5 +35,6 @@ def calibrate_table_by_markers(image, view, K, D):
     if not p.exterior.is_simple or p.exterior.is_ccw:
         return None
 
+    table_markers = table_markers.astype(np.float32)
     table_transform = cv2.getPerspectiveTransform(table_markers, target_table_markers)
     return table_transform
