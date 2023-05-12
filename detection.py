@@ -57,7 +57,7 @@ def detect_table_markers_on_image_hsv(hsv, view):
 
 
 def rearrange_table_markers(table_markers):
-    assert(len(table_markers) == 4)
+    assert len(table_markers) == 4
     # table_markers.shape = (4, 1, 2)
 
     u = table_markers[:, 0, 0]
