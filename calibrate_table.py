@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
-from detection import detect_table_aruco, detect_table_markers_on_image_hsv
+from detection import detect_table_aruco, detect_table_markers_on_image_hsv, \
+    rearrange_table_markers
 from aruco import get_aruco_corners_3d
 from plane_frame import PlaneFrame
 from shapely.geometry import Polygon
@@ -24,16 +25,7 @@ def get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, aruco_si
     # table_markers.shape = (4, 1, 2)
 
     table_markers = cv2.undistortPoints(table_markers, K, D)
-    keys = table_markers.sum(axis=(1, 2))
-    order = keys.argsort()
-    table_markers = table_markers[order]
-    table_markers[[2, 3]] = table_markers[[3, 2]]
-    p = Polygon(table_markers[:, 0, :])
-    if p.exterior.is_ccw:
-        table_markers[[1, 3]] = table_markers[[3, 1]]
-        p = Polygon(table_markers[:, 0, :])
-    assert p.exterior.is_simple
-    assert not p.exterior.is_ccw
+    table_markers = rearrange_table_markers(table_markers)
 
     table_markers = np.dstack((table_markers, np.ones((len(table_markers), 1))))
     table_markers_3d = table_frame.intersection_with_plane(table_markers)
@@ -56,16 +48,7 @@ def calibrate_table_by_markers(image, view, K, D, target_table_markers=None, tab
     # table_markers.shape = (4, 1, 2)
 
     table_markers = cv2.undistortPoints(table_markers, K, D)
-    keys = table_markers.sum(axis=(1, 2))
-    order = keys.argsort()
-    table_markers = table_markers[order]
-    table_markers[[2, 3]] = table_markers[[3, 2]]
-    p = Polygon(table_markers[:, 0, :])
-    if p.exterior.is_ccw:
-        table_markers[[1, 3]] = table_markers[[3, 1]]
-        p = Polygon(table_markers[:, 0, :])
-    if not p.exterior.is_simple or p.exterior.is_ccw:
-        return None
+    table_markers = rearrange_table_markers(table_markers)
 
     table_markers = table_markers.astype(np.float32)
     table_transform = cv2.getPerspectiveTransform(table_markers, target_table_markers)
