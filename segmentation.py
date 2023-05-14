@@ -70,7 +70,8 @@ def segment_table_markers_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, polygons = segment_by_color(hsv, min_color, max_color,
+    (refined_mask, orig_mask), polygons = segment_by_color(hsv, min_color, max_color,
         x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=30, max_polygon_length=100)
-    return mask, polygons
+        refine=True, min_polygon_length=30, max_polygon_length=100,
+        return_orig_mask=True)
+    return (refined_mask, orig_mask), polygons
