@@ -81,11 +81,11 @@ def segment_scene_colorful(image, view=""):
     # assert num_stop_lines == 1
 
     segmentation = np.zeros(image.shape, dtype=image.dtype)
-    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], red_mask * 200)
-    segmentation[:, :, 0] = np.maximum(segmentation[:, :, 0], blue_mask * 200)
-    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], goal_mask * 200)
-    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], goal_mask * 200)
-    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], stop_line_mask * 200)
+    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], red_mask)
+    segmentation[:, :, 0] = np.maximum(segmentation[:, :, 0], blue_mask)
+    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], goal_mask)
+    segmentation[:, :, 2] = np.maximum(segmentation[:, :, 2], goal_mask)
+    segmentation[:, :, 1] = np.maximum(segmentation[:, :, 1], stop_line_mask)
     segmentation[segmentation == 0] = 60
     return segmentation, (num_red, num_blue)
 
@@ -107,10 +107,10 @@ def segment_scene(image, view=""):
     assert num_stop_lines == 1
 
     segmentation = np.ones(image.shape[:2], dtype=image.dtype)
-    segmentation[goal_mask == 1] = 4
-    segmentation[stop_line_mask == 1] = 5
-    segmentation[red_mask == 1] = 6
-    segmentation[blue_mask == 1] = 7
+    segmentation[goal_mask == 255] = 4
+    segmentation[stop_line_mask == 255] = 5
+    segmentation[red_mask == 255] = 6
+    segmentation[blue_mask == 255] = 7
 
     segmentation = cv2.resize(segmentation, (256, 128), interpolation=cv2.INTER_NEAREST)
     return segmentation, (num_red, num_blue)
