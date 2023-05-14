@@ -14,7 +14,7 @@ def detect_and_rearrange_table_markers_on_image_hsv(hsv, view):
 def get_tl_table_marker_index(refined_mask, orig_mask, table_markers_polygons):
     assert len(table_markers_polygons) > 0
     tl_index = 0
-    max_diff = 0
+    max_diff_total_rate = 0
     for i in range(len(table_markers_polygons)):
         table_marker_mask = np.zeros_like(refined_mask)
         cv2.drawContours(table_marker_mask, table_markers_polygons, i, color=1, thickness=-1)
@@ -22,10 +22,13 @@ def get_tl_table_marker_index(refined_mask, orig_mask, table_markers_polygons):
         orig_intersection = np.logical_and(orig_mask, table_marker_mask)
         refined_num = np.count_nonzero(refined_intersection)
         orig_num = np.count_nonzero(orig_intersection)
+        total = np.count_nonzero(table_marker_mask)
         diff = refined_num - orig_num
         assert diff >= 0
-        if diff > max_diff:
+        diff_total_rate = diff / total
+        if diff_total_rate > max_diff_total_rate:
             tl_index = i
+            max_diff_total_rate = diff_total_rate
     return tl_index
 
 
