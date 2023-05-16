@@ -9,14 +9,21 @@ def show(image):
     cv2.destroyAllWindows()
 
 
-def get_roi(image, window_name=""):
+def get_roi(image, full_by_default=False, window_name="get roi"):
     roi = cv2.selectROI(window_name, image, showCrosshair=False)
     cv2.destroyAllWindows()
+
     x, y, w, h = roi
-
-    x_range = slice(x, x + w)
-    y_range = slice(y, y + h)
-
+    if (x, y, w, h) == (0, 0, 0, 0):
+        if full_by_default:
+            x_range = slice(0, None)
+            y_range = slice(0, None)
+        else:
+            x_range = None
+            y_range = None
+    else:
+        x_range = slice(x, x + w)
+        y_range = slice(y, y + h)
     return x_range, y_range
 
 
