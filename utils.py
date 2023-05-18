@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from camera_utils import stream
 
 
 def show(image):
@@ -37,3 +38,14 @@ def get_color_range(image, window_name=""):
     max_colors = sub_image.max(axis=(0, 1))
 
     return min_colors, max_colors
+
+
+def get_image_from_camera(camera_id, window_name="camera"):
+    cam = cv2.VideoCapture(camera_id)
+    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1024)
+    camera = lambda: cam.read()[1]
+    stream(camera, window_name=window_name)
+    image = camera()
+    cam.release()
+    return image
