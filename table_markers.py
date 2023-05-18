@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 from detection import detect_table_markers_on_image_hsv
-from calibrate_table import calibrate_table_by_aruco
 
 
 def detect_and_rearrange_table_markers_on_image_hsv(hsv, view):
@@ -49,9 +48,7 @@ def rearrange_table_markers(table_markers, first_table_marker_index):
     return table_markers
 
 
-def get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, aruco_size):
-    table_frame, _ = calibrate_table_by_aruco(image, view, K, D, aruco_size)
-
+def get_table_markers_coords_in_table_frame(image, view, K, D, table_frame):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     table_markers = detect_and_rearrange_table_markers_on_image_hsv(hsv, view)
     assert len(table_markers) == 4
