@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from detection import detect_table_markers_on_image_hsv
+from calibrate_table import calibrate_table_by_aruco
 
 
 def detect_and_rearrange_table_markers_on_image_hsv(hsv, view):
@@ -46,3 +47,21 @@ def rearrange_table_markers(table_markers, first_table_marker_index):
     table_markers = table_markers[order]
 
     return table_markers
+
+
+def get_table_markers_coords_in_table_frame_by_aruco(image, view, K, D, aruco_size):
+    table_frame, _ = calibrate_table_by_aruco(image, view, K, D, aruco_size)
+
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+    table_markers = detect_and_rearrange_table_markers_on_image_hsv(hsv, view)
+    assert len(table_markers) == 4
+    # table_markers.shape = (4, 1, 2)
+
+    table_markers = cv2.undistortPoints(table_markers, K, D)
+    table_markers_3d = np.dstack((table_markers, np.ones((len(table_markers), 1, 1))))
+    table_markers_3d = table_frame.intersection_with_plane(table_markers_3d)
+    table_markers_3d = table_frame.to_plane(table_markers_3d)
+    table_markers_2d = table_markers_3d[:, :, :2]
+    table_markers_2d = table_markers_2d.astype(np.float32)
+    # table_markers_2d.shape = (4, 1, 2)
+    return table_markers_2d
