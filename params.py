@@ -69,3 +69,6 @@ table_aruco_dist_2_0 = 79.5
 segmentation_roi = get_segmentation_roi(osp.join(osp.dirname(__file__), "data/segmentation_roi.pickle"))
 
 target_table_markers = get_target_table_markers(osp.join(osp.dirname(__file__), "data/target_table_markers.npy"))
+
+top_camera_id = 0
+front_camera_id = 4
