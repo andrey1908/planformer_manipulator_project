@@ -9,7 +9,7 @@ def show(image):
     cv2.destroyAllWindows()
 
 
-def get_roi(image, full_by_default=False, window_name="get roi"):
+def select_roi(image, full_by_default=False, window_name="select roi"):
     roi = cv2.selectROI(window_name, image, showCrosshair=False)
     cv2.destroyAllWindows()
 
