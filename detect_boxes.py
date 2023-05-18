@@ -7,7 +7,8 @@ from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
 from plane_frame import PlaneFrame
 
 
-def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size, use_intersection=True):
+def detect_boxes_by_aruco(image, view, K, D, table_frame, aruco_size, box_size,
+        use_intersection=True):
     arucos = detect_boxes_aruco(image, view, K, D, aruco_size)
     if arucos.n == 0:
         return np.empty((0, 2)), np.empty((0, 4))
@@ -63,7 +64,7 @@ def detect_boxes(image, view, K, D, table_frame, aruco_size, box_size, use_inter
     return boxes_positions, boxes_orientations
 
 
-def detect_boxes_segm(image, view, K, D, table_frame, box_size):
+def detect_boxes_by_segmentation(image, view, K, D, table_frame, box_size):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
