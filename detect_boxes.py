@@ -60,8 +60,8 @@ def detect_boxes_by_aruco(image, view, K, D, table_frame, aruco_size, box_size,
 
 def detect_boxes_by_segmentation(image, view, K, D, table_frame, box_size):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
-    blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
+    red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
+    blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
     boxes = np.vstack((red_boxes, blue_boxes))
 
     if len(boxes) > 0:
@@ -82,8 +82,8 @@ def detect_boxes_by_segmentation(image, view, K, D, table_frame, box_size):
 
 def detect_boxes_visual(image, view, K, D, table_transform):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    red_boxes = detect_red_boxes_on_image_hsv(hsv, view)
-    blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view)
+    red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
+    blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
 
     red_boxes = cv2.undistortPoints(red_boxes, K, D)
     blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
