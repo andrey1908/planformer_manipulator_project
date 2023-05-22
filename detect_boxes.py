@@ -89,7 +89,8 @@ def detect_boxes_visual(image, view, K, D, table_transform):
     blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
 
     boxes = np.vstack((red_boxes, blue_boxes))
-    boxes_positions = cv2.perspectiveTransform(boxes, table_transform).squeeze()
+    boxes_positions = cv2.perspectiveTransform(boxes, table_transform)
+    boxes_positions = boxes_positions[:, 0, :]
     # boxes_positions.shape = (n, 2)
     boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
     # boxes_orientations.shape = (n, 4)
