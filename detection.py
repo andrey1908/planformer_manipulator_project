@@ -37,14 +37,20 @@ def detect_boxes_aruco(image, view, K, D, aruco_size):
 
 def detect_red_boxes_on_image_hsv(hsv, view=""):
     _, red_boxes_polygons = segment_red_boxes_hsv(hsv, view=view)
-    red_boxes = get_centers_of_polygons(red_boxes_polygons)
+    if len(red_boxes_polygons) > 0:
+        red_boxes = get_centers_of_polygons(red_boxes_polygons)
+    else:
+        red_boxes = np.empty((0, 1, 2))
     # red_boxes.shape = (n, 1, 2)
     return red_boxes
 
 
 def detect_blue_boxes_on_image_hsv(hsv, view=""):
     _, blue_boxes_polygons = segment_blue_boxes_hsv(hsv, view=view)
-    blue_boxes = get_centers_of_polygons(blue_boxes_polygons)
+    if len(blue_boxes_polygons) > 0:
+        blue_boxes = get_centers_of_polygons(blue_boxes_polygons)
+    else:
+        blue_boxes = np.empty((0, 1, 2))
     # blue_boxes.shape = (n, 1, 2)
     return blue_boxes
 
@@ -52,7 +58,10 @@ def detect_blue_boxes_on_image_hsv(hsv, view=""):
 def detect_table_markers_on_image_hsv(hsv, view=""):
     (refined_mask, orig_mask), table_markers_polygons = \
         segment_table_markers_hsv(hsv, view=view)
-    table_markers = get_centers_of_polygons(table_markers_polygons)
+    if len(table_markers_polygons) > 0:
+        table_markers = get_centers_of_polygons(table_markers_polygons)
+    else:
+        table_markers = np.empty((0, 1, 2))
     # table_markers.shape = (n, 1, 2)
     return table_markers, ((refined_mask, orig_mask), table_markers_polygons)
 
