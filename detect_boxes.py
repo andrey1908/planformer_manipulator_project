@@ -84,14 +84,16 @@ def detect_boxes_visual(image, view, K, D, table_transform):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
-
-    red_boxes = cv2.undistortPoints(red_boxes, K, D)
-    blue_boxes = cv2.undistortPoints(blue_boxes, K, D)
-
     boxes = np.vstack((red_boxes, blue_boxes))
-    boxes_positions = cv2.perspectiveTransform(boxes, table_transform)
-    boxes_positions = boxes_positions[:, 0, :]
+
+    if len(boxes) > 0:
+        boxes = cv2.undistortPoints(boxes, K, D)
+        boxes_positions = cv2.perspectiveTransform(boxes, table_transform)
+        boxes_positions = boxes_positions[:, 0, :]
+    else:
+        boxes_positions = np.empty((0, 2))
     # boxes_positions.shape = (n, 2)
+
     boxes_orientations = np.tile(np.array([0., 0., 0., 1.]), (len(boxes_positions), 1))
     # boxes_orientations.shape = (n, 4)
     return boxes_positions, boxes_orientations
