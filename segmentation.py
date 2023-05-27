@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from params import segmentation_roi
-from segment_by_color import segment_by_color
+from segment_by_color import get_mask_in_roi, refine_mask_by_polygons
 
 
 def segment_red_boxes_hsv(hsv, view=""):
@@ -14,9 +14,10 @@ def segment_red_boxes_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, polygons = segment_by_color(hsv, min_color, max_color,
-        x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=80, max_polygon_length=250)
+    mask = cv2.inRange(hsv, min_color, max_color)
+    mask = get_mask_in_roi(mask, x_range, y_range)
+    mask, polygons = refine_mask_by_polygons(mask,
+        min_polygon_length=80, max_polygon_length=250)
     return mask, polygons
 
 
@@ -28,9 +29,10 @@ def segment_blue_boxes_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, polygons = segment_by_color(hsv, min_color, max_color,
-        x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=80, max_polygon_length=250)
+    mask = cv2.inRange(hsv, min_color, max_color)
+    mask = get_mask_in_roi(mask, x_range, y_range)
+    mask, polygons = refine_mask_by_polygons(mask,
+        min_polygon_length=80, max_polygon_length=250)
     return mask, polygons
 
 
@@ -42,9 +44,10 @@ def segment_goal_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, polygons = segment_by_color(hsv, min_color, max_color,
-        x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=150, max_polygon_length=1500)
+    mask = cv2.inRange(hsv, min_color, max_color)
+    mask = get_mask_in_roi(mask, x_range, y_range)
+    mask, polygons = refine_mask_by_polygons(mask,
+        min_polygon_length=150, max_polygon_length=1500)
     return mask, polygons
 
 
@@ -56,9 +59,10 @@ def segment_stop_line_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    mask, polygons = segment_by_color(hsv, min_color, max_color,
-        x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=500, max_polygon_length=900)
+    mask = cv2.inRange(hsv, min_color, max_color)
+    mask = get_mask_in_roi(mask, x_range, y_range)
+    mask, polygons = refine_mask_by_polygons(mask,
+        min_polygon_length=500, max_polygon_length=900)
     return mask, polygons
 
 
@@ -70,8 +74,8 @@ def segment_table_markers_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["working_area"]
     else:
         x_range, y_range = slice(0, None), slice(0, None)
-    (refined_mask, orig_mask), polygons = segment_by_color(hsv, min_color, max_color,
-        x_range=x_range, y_range=y_range,
-        refine=True, min_polygon_length=30, max_polygon_length=150,
-        return_orig_mask=True)
-    return (refined_mask, orig_mask), polygons
+    mask = cv2.inRange(hsv, min_color, max_color)
+    mask = get_mask_in_roi(mask, x_range, y_range)
+    refined_mask, polygons = refine_mask_by_polygons(mask,
+        min_polygon_length=30, max_polygon_length=150)
+    return (refined_mask, mask), polygons
