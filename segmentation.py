@@ -8,27 +8,29 @@ def segment_red_boxes_hsv(hsv, view=""):
     assert view in ("top", "front", "")
     # shift hue so that red color is continuous
     hsv = hsv + np.array([100, 0, 0], dtype=np.uint8)
-    min_color = np.array([63, 110, 90], dtype=np.uint8)
+    min_color = np.array([63, 120, 50], dtype=np.uint8)
     max_color = np.array([106, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, min_color, max_color)
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
         mask = get_mask_in_roi(mask, x_range, y_range)
     mask, polygons = refine_mask_by_polygons(mask,
-        min_polygon_length=80, max_polygon_length=250)
+        min_polygon_length=80, max_polygon_length=250,
+        min_polygon_area_length_ratio=5)
     return mask, polygons
 
 
 def segment_blue_boxes_hsv(hsv, view=""):
     assert view in ("top", "front", "")
-    min_color = np.array([132, 110, 90], dtype=np.uint8)
+    min_color = np.array([132, 120, 50], dtype=np.uint8)
     max_color = np.array([186, 255, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, min_color, max_color)
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
         mask = get_mask_in_roi(mask, x_range, y_range)
     mask, polygons = refine_mask_by_polygons(mask,
-        min_polygon_length=80, max_polygon_length=250)
+        min_polygon_length=80, max_polygon_length=250,
+        min_polygon_area_length_ratio=5)
     return mask, polygons
 
 
@@ -48,7 +50,12 @@ def segment_goal_hsv(hsv, view=""):
 def segment_stop_line_hsv(hsv, view=""):
     assert view in ("top", "front", "")
     min_color = np.array([0, 0, 0], dtype=np.uint8)
-    max_color = np.array([255, 255, 100], dtype=np.uint8)
+    if view == "top":
+        max_color = np.array([255, 255, 100], dtype=np.uint8)
+    elif view == "front":
+        max_color = np.array([255, 255, 70], dtype=np.uint8)
+    else:
+        max_color = np.array([255, 255, 100], dtype=np.uint8)
     mask = cv2.inRange(hsv, min_color, max_color)
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
