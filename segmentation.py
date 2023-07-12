@@ -43,7 +43,8 @@ def segment_goal_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = get_mask_in_roi(mask, x_range, y_range)
     mask, polygons = refine_mask_by_polygons(mask,
-        min_polygon_length=150, max_polygon_length=1500)
+        min_polygon_length=150, max_polygon_length=1500,
+        select_top_n_polygons_by_length=3)
     return mask, polygons
 
 
@@ -61,7 +62,8 @@ def segment_stop_line_hsv(hsv, view=""):
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = get_mask_in_roi(mask, x_range, y_range)
     mask, polygons = refine_mask_by_polygons(mask,
-        min_polygon_length=500, max_polygon_length=900)
+        min_polygon_length=500, max_polygon_length=900,
+        select_top_n_polygons_by_length=1)
     return mask, polygons
 
 
