@@ -3,7 +3,7 @@ import cv2
 from detection import detect_table_markers_on_image_hsv
 
 
-def detect_and_rearrange_table_markers_on_image_hsv(hsv, view):
+def detect_and_rearrange_table_markers_on_image_hsv(hsv, view=""):
     table_markers, ((refined_mask, orig_mask), table_markers_polygons) = \
         detect_table_markers_on_image_hsv(hsv, view=view)
     tl_index = get_tl_table_marker_index(refined_mask, orig_mask, table_markers_polygons)

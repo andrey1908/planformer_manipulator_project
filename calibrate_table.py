@@ -17,7 +17,7 @@ def calibrate_table_by_aruco(image, view, K, D, aruco_size):
 
 def calibrate_table_by_markers(image, view, K, D, target_table_markers):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    table_markers = detect_and_rearrange_table_markers_on_image_hsv(hsv, view)
+    table_markers = detect_and_rearrange_table_markers_on_image_hsv(hsv, view=view)
     if len(table_markers) != 4:
         return None
     # table_markers.shape = (4, 1, 2)

@@ -34,7 +34,7 @@ def stream_table_frame(camera, view, K, D, aruco_size, save_folder=None):
 
 def stream_segmented_scene(camera, view, save_folder=None):
     def segment_and_show_scene(key, image, **kwargs):
-        segmentation, (num_red, num_blue) = segment_scene_colorful(image, view)
+        segmentation, (num_red, num_blue) = segment_scene_colorful(image, view=view)
         if num_red != segment_and_show_scene.num_red or \
                 num_blue != segment_and_show_scene.num_blue:
             print(f"Segmented {num_red} red, {num_blue} blue boxes")
