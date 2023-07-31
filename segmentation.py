@@ -50,19 +50,21 @@ def segment_goal_hsv(hsv, view=""):
 
 def segment_stop_line_hsv(hsv, view=""):
     assert view in ("top", "front", "")
-    min_color = np.array([0, 0, 0], dtype=np.uint8)
     if view == "top":
-        max_color = np.array([255, 255, 100], dtype=np.uint8)
+        min_color = np.array([0, 0, 200], dtype=np.uint8)
+        max_color = np.array([255, 40, 255], dtype=np.uint8)
     elif view == "front":
-        max_color = np.array([255, 255, 70], dtype=np.uint8)
+        min_color = np.array([0, 0, 130], dtype=np.uint8)
+        max_color = np.array([255, 50, 255], dtype=np.uint8)
     else:
-        max_color = np.array([255, 255, 100], dtype=np.uint8)
+        min_color = np.array([0, 0, 200], dtype=np.uint8)
+        max_color = np.array([255, 40, 255], dtype=np.uint8)
     mask = cv2.inRange(hsv, min_color, max_color)
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = get_mask_in_roi(mask, x_range, y_range)
     mask, polygons = refine_mask_by_polygons(mask,
-        min_polygon_length=500, max_polygon_length=900,
+        min_polygon_length=400, max_polygon_length=3000,
         select_top_n_polygons_by_length=1)
     return mask, polygons
 
