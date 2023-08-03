@@ -46,6 +46,6 @@ def get_image_from_camera(camera_id, window_name="camera"):
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1024)
     camera = lambda: {"image": cam.read()[1]}
     stream(camera, window_name=window_name)
-    image = camera()
+    image = camera()["image"]
     cam.release()
     return image
