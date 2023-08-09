@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from aruco import RetryRejectedParameters
+from kas_utils.aruco import RetryRejectedParameters
 import pickle
 import os.path as osp
 

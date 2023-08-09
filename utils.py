@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from camera_utils import stream
+from kas_camera_utils import stream
 
 
 def show(image):

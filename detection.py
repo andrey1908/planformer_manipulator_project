@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from aruco import detect_aruco, select_aruco_poses, select_aruco_markers, PoseSelectors
+from kas_utils.aruco import detect_aruco, select_aruco_poses, select_aruco_markers, PoseSelectors
 from params import aruco_dict, aruco_detection_params, retry_rejected_params
 from segmentation import segment_table_markers_hsv, segment_red_boxes_hsv, segment_blue_boxes_hsv
 from shapely.geometry import Polygon

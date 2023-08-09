@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
-from aruco import draw_aruco
+from kas_utils.aruco import draw_aruco
 from calibrate_table import calibrate_table_by_aruco
-from camera_utils import stream, StreamCallbacks
+from kas_camera_utils import stream, StreamCallbacks
 from detection import detect_boxes_aruco
 from segment_scene import segment_scene_colorful
 

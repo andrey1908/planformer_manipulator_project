@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 from detection import detect_table_aruco
 from table_markers import detect_and_rearrange_table_markers_on_image_hsv
-from aruco import get_aruco_corners_3d
-from plane_frame import PlaneFrame
+from kas_utils.aruco import get_aruco_corners_3d
+from kas_utils.plane_frame import PlaneFrame
 
 
 def calibrate_table_by_aruco(image, view, K, D, aruco_size):

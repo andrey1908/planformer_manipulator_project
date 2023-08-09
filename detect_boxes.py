@@ -4,7 +4,7 @@ from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
     detect_blue_boxes_on_image_hsv
-from plane_frame import PlaneFrame
+from kas_utils.plane_frame import PlaneFrame
 
 
 def detect_boxes_by_aruco(image, view, K, D, table_frame, aruco_size, box_size,
