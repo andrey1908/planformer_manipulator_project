@@ -3,8 +3,9 @@ import cv2
 from transforms3d.quaternions import axangle2quat
 from transforms3d.axangles import mat2axangle
 from detection import detect_boxes_aruco, detect_red_boxes_on_image_hsv, \
-    detect_blue_boxes_on_image_hsv
+    detect_blue_boxes_on_image_hsv, detect_boxes_on_image_nn
 from kas_utils.plane_frame import PlaneFrame
+from params import use_nn
 
 
 def detect_boxes_by_aruco(image, view, K, D, table_frame, aruco_size, box_size,
@@ -59,6 +60,9 @@ def detect_boxes_by_aruco(image, view, K, D, table_frame, aruco_size, box_size,
 
 
 def detect_boxes_by_segmentation(image, view, K, D, table_frame, box_size):
+    if use_nn:
+        raise NotImplementedError()
+
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
     blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
@@ -81,10 +85,13 @@ def detect_boxes_by_segmentation(image, view, K, D, table_frame, box_size):
 
 
 def detect_boxes_visual(image, view, K, D, table_transform):
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
-    red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
-    blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
-    boxes = np.vstack((red_boxes, blue_boxes))
+    if not use_nn:
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
+        red_boxes = detect_red_boxes_on_image_hsv(hsv, view=view)
+        blue_boxes = detect_blue_boxes_on_image_hsv(hsv, view=view)
+        boxes = np.vstack((red_boxes, blue_boxes))
+    else:
+        boxes = detect_boxes_on_image_nn(image)
 
     if len(boxes) > 0:
         boxes = cv2.undistortPoints(boxes, K, D)

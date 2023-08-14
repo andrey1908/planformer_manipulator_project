@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 from kas_utils.aruco import RetryRejectedParameters
+import torch
+from ultralytics import YOLO
 import pickle
 import os.path as osp
 
@@ -66,3 +68,15 @@ target_table_markers = get_target_table_markers(osp.join(osp.dirname(__file__), 
 
 top_camera_id = 0
 front_camera_id = 4
+
+use_nn = True
+yolov8n_model = "data/yolov8n.yaml"
+yolov8n_weights = "data/yolov8n.pt"
+if use_nn:
+    assert yolov8n_model and yolov8n_weights
+    yolov8n = YOLO(yolov8n_model)
+    weights = torch.load(yolov8n_weights)['model']
+    yolov8n.model.load(weights)
+    yolov8n.warmup()
+else:
+    yolov8n = None

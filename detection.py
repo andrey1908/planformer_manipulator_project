@@ -4,6 +4,7 @@ from kas_utils.aruco import detect_aruco, select_aruco_poses, select_aruco_marke
 from params import aruco_dict, aruco_detection_params, retry_rejected_params
 from segmentation import segment_table_markers_hsv, segment_red_boxes_hsv, segment_blue_boxes_hsv
 from shapely.geometry import Polygon
+from segmentation import segmnet_nn
 
 
 def detect_table_aruco(image, view, K, D, aruco_size):
@@ -74,3 +75,23 @@ def get_centers_of_polygons(polygons):
     centers = np.array(centers)
     # centers.shape = (n, 1, 2)
     return centers
+
+
+def detect_boxes_on_image_nn(image):
+    red_boxes_mask, blue_boxes_mask, goal_mask, stop_line_mask, \
+        red_boxes_polygons, blue_boxes_polygons, goal_polygons, stop_line_polygons = \
+            segmnet_nn(image)
+
+    if len(red_boxes_polygons) > 0:
+        red_boxes = get_centers_of_polygons(red_boxes_polygons)
+    else:
+        red_boxes = np.empty((0, 1, 2))
+
+    if len(blue_boxes_polygons) > 0:
+        blue_boxes = get_centers_of_polygons(blue_boxes_polygons)
+    else:
+        blue_boxes = np.empty((0, 1, 2))
+
+    boxes = np.vstack((red_boxes, blue_boxes))
+    # boxes.shape = (n, 1, 2)
+    return boxes
