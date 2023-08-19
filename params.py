@@ -35,7 +35,10 @@ def get_camera_calib(calib_file):
     return K, D
 
 
-def get_segmentation_roi(segmentation_roi_file):
+def get_segmentation_roi(segmentation_roi_file, not_found_ok=False):
+    if not_found_ok and not osp.isfile(segmentation_roi_file):
+        return None
+
     with open(segmentation_roi_file, 'rb') as f:
         segmentation_roi = pickle.load(f)
     return segmentation_roi
@@ -62,7 +65,8 @@ table_aruco_dist_1_3 = 79.6
 table_aruco_dist_3_2 = 30.0
 table_aruco_dist_2_0 = 79.5
 
-segmentation_roi = get_segmentation_roi(osp.join(osp.dirname(__file__), "data/segmentation_roi.pickle"))
+segmentation_roi = get_segmentation_roi(osp.join(osp.dirname(__file__), "data/segmentation_roi.pickle"),
+    not_found_ok=True)
 
 target_table_markers = get_target_table_markers(osp.join(osp.dirname(__file__), "data/target_table_markers.npy"))
 
