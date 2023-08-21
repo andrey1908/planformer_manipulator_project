@@ -15,7 +15,7 @@ def segment_red_boxes_hsv(hsv, view=""):
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
         mask = get_mask_in_roi(mask, x_range, y_range)
-    mask, polygons = refine_mask_by_polygons(mask,
+    mask, polygons, _, _ = refine_mask_by_polygons(mask,
         min_polygon_length=80, max_polygon_length=250,
         min_polygon_area_length_ratio=5)
     return mask, polygons
@@ -29,7 +29,7 @@ def segment_blue_boxes_hsv(hsv, view=""):
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
         mask = get_mask_in_roi(mask, x_range, y_range)
-    mask, polygons = refine_mask_by_polygons(mask,
+    mask, polygons, _, _ = refine_mask_by_polygons(mask,
         min_polygon_length=80, max_polygon_length=250,
         min_polygon_area_length_ratio=5)
     return mask, polygons
@@ -43,7 +43,7 @@ def segment_goal_hsv(hsv, view=""):
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = get_mask_in_roi(mask, x_range, y_range)
-    mask, polygons = refine_mask_by_polygons(mask,
+    mask, polygons, _, _ = refine_mask_by_polygons(mask,
         min_polygon_length=150, max_polygon_length=1500,
         select_top_n_polygons_by_length=3)
     return mask, polygons
@@ -57,7 +57,7 @@ def segment_stop_line_hsv(hsv, view=""):
     if view:
         x_range, y_range = segmentation_roi[view]["goal_and_stop_line"]
         mask = get_mask_in_roi(mask, x_range, y_range)
-    mask, polygons = refine_mask_by_polygons(mask,
+    mask, polygons, _, _ = refine_mask_by_polygons(mask,
         min_polygon_length=400, max_polygon_length=3000,
         select_top_n_polygons_by_length=1)
     return mask, polygons
@@ -71,7 +71,7 @@ def segment_table_markers_hsv(hsv, view=""):
     if view:
         x_range, y_range = segmentation_roi[view]["working_area"]
         mask = get_mask_in_roi(mask, x_range, y_range)
-    refined_mask, polygons = refine_mask_by_polygons(mask,
+    refined_mask, polygons, _, _ = refine_mask_by_polygons(mask,
         min_polygon_length=30, max_polygon_length=150)
     return (refined_mask, mask), polygons
 
@@ -90,16 +90,16 @@ def segmnet_nn(image):
     for class_id, mask in zip(classes_ids, masks):
         out_masks[class_id] |= mask
 
-    red_boxes_mask, red_boxes_polygons = refine_mask_by_polygons(red_boxes_mask,
+    red_boxes_mask, red_boxes_polygons, _, _ = refine_mask_by_polygons(red_boxes_mask,
         min_polygon_length=80, max_polygon_length=250,
         min_polygon_area_length_ratio=5)
-    blue_boxes_mask, blue_boxes_polygons = refine_mask_by_polygons(blue_boxes_mask,
+    blue_boxes_mask, blue_boxes_polygons, _, _ = refine_mask_by_polygons(blue_boxes_mask,
         min_polygon_length=80, max_polygon_length=250,
         min_polygon_area_length_ratio=5)
-    goal_mask, goal_polygons = refine_mask_by_polygons(goal_mask,
+    goal_mask, goal_polygons, _, _ = refine_mask_by_polygons(goal_mask,
         min_polygon_length=150, max_polygon_length=1500,
         select_top_n_polygons_by_length=3)
-    stop_line_mask, stop_line_polygons = refine_mask_by_polygons(stop_line_mask,
+    stop_line_mask, stop_line_polygons, _, _ = refine_mask_by_polygons(stop_line_mask,
         min_polygon_length=400, max_polygon_length=3000,
         select_top_n_polygons_by_length=1)
 
