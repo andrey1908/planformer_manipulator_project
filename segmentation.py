@@ -105,3 +105,22 @@ def segmnet_nn(image):
 
     return red_boxes_mask, blue_boxes_mask, goal_mask, stop_line_mask, \
         red_boxes_polygons, blue_boxes_polygons, goal_polygons, stop_line_polygons
+
+
+def k_means_separation(mask, k):
+    points = np.argwhere(mask)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    flags = cv2.KMEANS_RANDOM_CENTERS
+    compactness, labels, centers = cv2.kmeans(points.astype(np.float32), k,
+        None, criteria, 10, flags)
+
+    out_masks = list()
+    for i in range(k):
+        cluster = (labels == i)
+        cluster_points = (points[:, 0][cluster], points[:, 1][cluster])
+        out_mask = np.zeros_like(mask)
+        out_mask[cluster_points] = 255
+        out_masks.append(out_mask)
+
+    out_masks = np.array(out_masks)
+    return out_masks

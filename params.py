@@ -84,3 +84,5 @@ if use_nn:
     yolov8n.warmup()
 else:
     yolov8n = None
+
+box_area_thresh = 2550.0
