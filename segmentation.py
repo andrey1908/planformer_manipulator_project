@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from params import segmentation_roi, yolov8n
-from kas_utils.segment_by_color import get_mask_in_roi, refine_mask_by_polygons
+from kas_utils.color_segmentation import get_mask_in_roi, refine_mask_by_polygons
 from ultralytics.yolo.utils.ops import preprocess_results
 
 
